@@ -1,11 +1,11 @@
 # Implementation Plan
 
-## Current phase: Phase 0 — Discovery & Architecture
+## Current phase: Phase 1 — Foundation (partial; dashboard now uses real API data)
 
 ### Repository baseline
-- Existing repository: GitHub Pages shell only (`README.md`, `CNAME`).
-- No application source, package manifest, lockfile, database schema, CI workflow, or container configuration exists.
-- Existing custom domain file is preserved.
+- Existing repository is a pnpm workspace containing `apps/web` (Next.js), `apps/api` (NestJS), Prisma schema, CI and Docker Compose.
+- The initial dashboard was a static prototype; it has now been replaced with a session-protected API-backed dashboard for the foundation data that exists.
+- GitHub Pages deployment was removed because static export cannot provide the required secure session/API runtime.
 - Target product language: Vietnamese; default locale `vi-VN`; timezone `Asia/Ho_Chi_Minh`.
 
 ### Delivery phases
@@ -23,6 +23,8 @@
 
 - [x] Add root `package.json`, pinned Node/pnpm version and workspace scaffold.
 - [x] Add Next.js web application with Vietnamese app shell.
+- [x] Add authenticated dashboard API and frontend loading/error/empty states.
+- [x] Remove static export and hard-coded dashboard production data.
 - [x] Add NestJS API with `/api/v1`, validation, Swagger and health endpoints.
 - [x] Add initial Prisma schema for identity, access control and organization foundations.
 - [x] Add secure session/auth flow, password reset token flow and RBAC permission guard.

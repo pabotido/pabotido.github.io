@@ -7,6 +7,10 @@ STATUS: Partial
 
 ## 1. Đã triển khai
 
+- Dashboard API được bảo vệ bằng session và lấy active employees, departments, user profile và audit activity từ PostgreSQL.
+- Web login gọi API thật; dashboard có loading, error và empty states. Dữ liệu chưa có module được hiển thị là chưa triển khai thay vì số liệu giả.
+- Static export/GitHub Pages deployment đã được gỡ vì không tương thích với secure cookie session và API runtime.
+
 - pnpm workspace với phiên bản `9.15.5`, lockfile và cấu trúc apps/packages.
 - Next.js 15 App Router web shell tiếng Việt.
 - NestJS API với prefix `/api/v1`, Helmet, cookie parser, ValidationPipe và Swagger.
@@ -29,12 +33,18 @@ STATUS: Partial
 | `npx --yes pnpm@9.15.5 typecheck` | PASS |
 | `npx --yes pnpm@9.15.5 test` | PASS; auth/RBAC/password-reset/request-id tests |
 | `npx --yes pnpm@9.15.5 build` | PASS; API and web |
-| `docker compose ps` | PASS; PostgreSQL and Redis healthy |
-| `prisma migrate deploy` | PASS; migration `0001_init` applied |
-| `pnpm db:seed` | PASS; permissions and `super_admin` role seeded |
+| `docker compose ps` | NOT RUN; Docker CLI unavailable in this environment |
+| `prisma migrate deploy` | NOT RUN; requires PostgreSQL/Docker |
+| `pnpm db:seed` | NOT RUN; requires PostgreSQL |
+| `npx --yes pnpm@9.15.5 --filter @portal/api test -- --runInBand` | PASS; 11 tests |
+| `npx --yes pnpm@9.15.5 --filter @portal/api build` | PASS |
+| `npx --yes pnpm@9.15.5 --filter @portal/web build` | PASS |
 | API runtime wiring | PASS; Nest application started and routes mapped |
 
 ## 3. Chưa hoàn thành
+
+- Chưa có UI test/E2E test cho login và dashboard; web test script hiện chỉ là placeholder.
+- Chưa có production runtime để deploy Next.js và API cùng secure HTTPS domain.
 
 - Chạy integration tests đầy đủ với PostgreSQL thật và thêm test cases cho users/organization.
 - Redis-backed rate limiting và login lockout controls.
@@ -57,7 +67,7 @@ npx --yes pnpm@9.15.5 dev
 
 - Skills discovered: chỉ có `skill-creator`, không liên quan trực tiếp đến Next.js/NestJS/Prisma.
 - Tools used: filesystem inspection, Git checks, pnpm, TypeScript, ESLint, Jest, Next build, Nest build, Prisma CLI.
-- Docker Desktop hoạt động; PostgreSQL và Redis đã chạy healthy. MinIO storage profile bị registry từ chối pull và chưa được dùng trong smoke test.
+- Docker CLI/Compose không có trong môi trường kiểm tra hiện tại, nên PostgreSQL/Redis migration và integration chưa chạy được.
 
 ## 6. Rủi ro
 

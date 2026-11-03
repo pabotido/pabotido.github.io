@@ -1,51 +1,30 @@
-const stats = [
-  { label: 'Nhân sự đang hoạt động', value: '248', note: '+12 tháng này', tone: 'blue' },
-  { label: 'Yêu cầu chờ duyệt', value: '18', note: '5 cần xử lý hôm nay', tone: 'orange' },
-  { label: 'Phòng ban', value: '24', note: 'Đang vận hành ổn định', tone: 'green' },
-  { label: 'Tài liệu nội bộ', value: '1,284', note: '+86 tài liệu mới', tone: 'purple' },
-];
+'use client';
 
-const activities = [
-  { initials: 'MN', name: 'Minh Nguyễn', action: 'đã tạo yêu cầu nghỉ phép', time: '10 phút trước', color: 'blue' },
-  { initials: 'TH', name: 'Thu Hà', action: 'đã cập nhật tài liệu onboarding', time: '32 phút trước', color: 'orange' },
-  { initials: 'AK', name: 'Anh Khoa', action: 'đã gia nhập phòng Kinh doanh', time: '1 giờ trước', color: 'green' },
-];
+import { useEffect, useState } from 'react';
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+type DashboardData = { user: { displayName: string | null }; stats: { activeEmployees: number; departments: number }; recentActivity: Array<{ id: string; action: string; resource: string; createdAt: string; actor: { profile: { displayName: string | null } | null } | null }>; unavailableModules: string[] };
 
 export default function HomePage() {
-  return (
-    <div className="portal-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">P</div>
-          <div><strong>Portal</strong><span>Enterprise workspace</span></div>
-        </div>
-        <div className="workspace-switcher"><span className="workspace-dot" /> Công ty TNHH Portal <span className="chevron">⌄</span></div>
-        <nav className="nav" aria-label="Điều hướng chính">
-          <p className="nav-label">TỔNG QUAN</p>
-          <a className="nav-item active" href="#dashboard"><span>▦</span> Tổng quan</a>
-          <a className="nav-item" href="#calendar"><span>□</span> Lịch làm việc</a>
-          <a className="nav-item" href="#notifications"><span>♢</span> Thông báo <b>4</b></a>
-          <p className="nav-label">VẬN HÀNH</p>
-          <a className="nav-item" href="#users"><span>♙</span> Nhân sự</a>
-          <a className="nav-item" href="#departments"><span>▤</span> Phòng ban</a>
-          <a className="nav-item" href="#documents"><span>▱</span> Tài liệu</a>
-          <a className="nav-item" href="#approvals"><span>✓</span> Phê duyệt <b className="orange">18</b></a>
-          <p className="nav-label">HỆ THỐNG</p>
-          <a className="nav-item" href="#settings"><span>⚙</span> Cài đặt</a>
-          <a className="nav-item" href="#help"><span>?</span> Trung tâm trợ giúp</a>
-        </nav>
-        <div className="sidebar-footer"><div className="avatar small">AN</div><div><strong>Admin Nguyễn</strong><span>Quản trị viên</span></div><span className="more">•••</span></div>
-      </aside>
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
 
-      <main className="main-content" id="dashboard">
-        <header className="topbar"><div className="breadcrumb">Tổng quan <span>/</span> Dashboard</div><div className="top-actions"><button className="icon-button" aria-label="Tìm kiếm">⌕</button><button className="icon-button notification" aria-label="Thông báo">♢<i /></button><div className="avatar">AN</div></div></header>
-        <div className="content-wrap">
-          <section className="welcome-row"><div><p className="eyebrow">THỨ BA, 04 THÁNG 11, 2026</p><h1>Chào buổi sáng, Admin <span>✦</span></h1><p className="subheading">Đây là những gì đang diễn ra trong tổ chức của bạn hôm nay.</p></div><button className="primary-button">＋ Tạo yêu cầu mới</button></section>
-          <section className="stats-grid">{stats.map((stat) => <article className={`stat-card ${stat.tone}`} key={stat.label}><div className="stat-icon">{stat.tone === 'blue' ? '♙' : stat.tone === 'orange' ? '◷' : stat.tone === 'green' ? '⌂' : '▱'}</div><div><p>{stat.label}</p><strong>{stat.value}</strong><small>{stat.note}</small></div><span className="trend">↗</span></article>)}</section>
-          <section className="dashboard-grid"><article className="panel activity-panel"><div className="panel-heading"><div><h2>Hoạt động gần đây</h2><p>Cập nhật mới nhất trong tổ chức</p></div><a href="#activities">Xem tất cả <span>→</span></a></div><div className="activity-list">{activities.map((item) => <div className="activity" key={item.name}><div className={`avatar ${item.color}`}>{item.initials}</div><div><p><strong>{item.name}</strong> {item.action}</p><small>{item.time}</small></div></div>)}</div><div className="empty-activity"><span>✓</span><p><strong>Mọi thứ đã được cập nhật!</strong><br />Bạn đã xem hết hoạt động mới.</p></div></article><article className="panel calendar-panel" id="calendar"><div className="panel-heading"><div><h2>Lịch hôm nay</h2><p>Thứ Ba, 04 Tháng 11</p></div><button className="more-button">•••</button></div><div className="schedule"><div className="schedule-time">09:00</div><div className="event blue-event"><strong>Họp kế hoạch quý IV</strong><span>Phòng họp A · 09:00 – 10:00</span></div><div className="schedule-time">11:30</div><div className="event purple-event"><strong>Review sản phẩm</strong><span>Online · 11:30 – 12:30</span></div><div className="schedule-time">14:00</div><div className="event orange-event"><strong>Đào tạo nhân sự mới</strong><span>Phòng đào tạo · 14:00 – 15:30</span></div></div><a className="calendar-link" href="#calendar">Mở lịch làm việc <span>→</span></a></article></section>
-          <section className="quick-section"><div className="panel-heading"><div><h2>Truy cập nhanh</h2><p>Các tác vụ thường dùng</p></div></div><div className="quick-grid"><a href="#users" className="quick-card"><span className="quick-icon blue-bg">♙</span><span><strong>Quản lý nhân sự</strong><small>Xem và quản lý nhân viên</small></span><b>→</b></a><a href="#documents" className="quick-card"><span className="quick-icon purple-bg">▱</span><span><strong>Kho tài liệu</strong><small>Truy cập tài liệu nội bộ</small></span><b>→</b></a><a href="#approvals" className="quick-card"><span className="quick-icon orange-bg">✓</span><span><strong>Phê duyệt của tôi</strong><small>18 yêu cầu đang chờ</small></span><b>→</b></a></div></section>
-        </div>
-      </main>
-    </div>
-  );
+  useEffect(() => {
+    fetch(`${apiUrl}/dashboard`, { credentials: 'include' })
+      .then(async (response) => { if (response.status === 401) { window.location.href = '/login'; return null; } if (!response.ok) throw new Error('dashboard'); return response.json() as Promise<{ data: DashboardData }>; })
+      .then((result) => { if (!result) return; setData(result.data); setState('ready'); })
+      .catch(() => setState('error'));
+  }, []);
+
+  if (state === 'loading') return <main className="portal-state"><p>Đang tải dữ liệu dashboard…</p></main>;
+  if (state === 'error') return <main className="portal-state"><h1>Không tải được dashboard</h1><p>Kiểm tra kết nối API rồi thử tải lại trang.</p><button onClick={() => window.location.reload()}>Thử lại</button></main>;
+  if (state === 'empty' || !data) return <main className="portal-state"><h1>Chưa có dữ liệu</h1><p>Dashboard chưa có dữ liệu phù hợp với tài khoản này.</p></main>;
+
+  async function logout() {
+    const csrf = document.cookie.split('; ').find((item) => item.startsWith('portal_csrf='))?.split('=')[1];
+    await fetch(`${apiUrl}/auth/logout`, { method: 'POST', credentials: 'include', headers: csrf ? { 'x-csrf-token': decodeURIComponent(csrf) } : {} });
+    window.location.href = '/login';
+  }
+
+  return <div className="portal-shell"><aside className="sidebar"><div className="brand"><div className="brand-mark">P</div><div><strong>Portal</strong><span>Enterprise workspace</span></div></div><div className="workspace-switcher"><span className="workspace-dot" /> Không gian doanh nghiệp</div><nav className="nav" aria-label="Điều hướng chính"><p className="nav-label">TỔNG QUAN</p><a className="nav-item active" href="/">▦ Tổng quan</a><button className="nav-item nav-button" onClick={logout}>↪ Đăng xuất</button><p className="nav-label">ĐÃ TRIỂN KHAI</p><span className="nav-item disabled">♙ Nhân sự · API có sẵn, UI đang triển khai</span><span className="nav-item disabled">▤ Phòng ban · API có sẵn, UI đang triển khai</span><p className="nav-label">CHƯA TRIỂN KHAI</p>{data.unavailableModules.map((module) => <span className="nav-item disabled" key={module}>— {module}</span>)}</nav><div className="sidebar-footer"><div className="avatar small">{(data.user.displayName ?? 'U').slice(0, 2).toUpperCase()}</div><div><strong>{data.user.displayName ?? 'Người dùng'}</strong><span>Tài khoản hiện tại</span></div></div></aside><main className="main-content"><header className="topbar"><div className="breadcrumb">Tổng quan <span>/</span> Dashboard</div></header><div className="content-wrap"><section className="welcome-row"><div><p className="eyebrow">DỮ LIỆU THỰC TỪ API</p><h1>Chào, {data.user.displayName ?? 'bạn'} <span>✦</span></h1><p className="subheading">Các số liệu dưới đây lấy trực tiếp từ hệ thống, không dùng dữ liệu mẫu.</p></div></section><section className="stats-grid"><article className="stat-card blue"><div className="stat-icon">♙</div><div><p>Nhân sự đang hoạt động</p><strong>{data.stats.activeEmployees}</strong><small>Nguồn: PostgreSQL</small></div></article><article className="stat-card green"><div className="stat-icon">⌂</div><div><p>Phòng ban</p><strong>{data.stats.departments}</strong><small>Nguồn: PostgreSQL</small></div></article><article className="stat-card orange"><div className="stat-icon">◷</div><div><p>Yêu cầu chờ duyệt</p><strong>—</strong><small>Module approvals chưa triển khai</small></div></article><article className="stat-card purple"><div className="stat-icon">▱</div><div><p>Tài liệu nội bộ</p><strong>—</strong><small>Module documents chưa triển khai</small></div></article></section><section className="dashboard-grid"><article className="panel activity-panel"><div className="panel-heading"><div><h2>Audit gần đây</h2><p>Hoạt động đã được ghi nhận trong hệ thống</p></div></div>{data.recentActivity.length === 0 ? <div className="empty-activity"><p>Chưa có hoạt động nào được ghi nhận.</p></div> : <div className="activity-list">{data.recentActivity.map((item) => <div className="activity" key={item.id}><div className="avatar blue">{(item.actor?.profile?.displayName ?? 'SY').slice(0, 2).toUpperCase()}</div><div><p><strong>{item.actor?.profile?.displayName ?? 'Hệ thống'}</strong> · {item.action} · {item.resource}</p><small>{new Date(item.createdAt).toLocaleString('vi-VN')}</small></div></div>)}</div>}</article><article className="panel calendar-panel"><div className="panel-heading"><div><h2>Lịch làm việc</h2><p>Module calendar chưa được triển khai</p></div></div><div className="empty-activity"><p>Chưa có API lịch làm việc. Không hiển thị dữ liệu giả.</p></div></article></section></div></main></div>;
 }
