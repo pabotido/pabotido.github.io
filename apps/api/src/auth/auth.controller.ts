@@ -6,7 +6,7 @@ import { createToken } from './crypto';
 import { AUTH_COOKIE_OPTIONS, CSRF_COOKIE, SESSION_COOKIE } from './auth.constants';
 import { AuthService } from './auth.service';
 import { CsrfGuard } from './csrf.guard';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto, RequestPasswordResetDto, ResetPasswordDto } from './dto/login.dto';
 import { RequirePermissions } from './permissions.decorator';
 import { PermissionsGuard } from './permissions.guard';
 import { SessionGuard } from './session.guard';
@@ -23,6 +23,20 @@ export class AuthController {
     response.cookie(SESSION_COOKIE, result.token, AUTH_COOKIE_OPTIONS);
     response.cookie(CSRF_COOKIE, createToken(24), { httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' });
     return { data: { user: result.user }, meta: { requestId: 'auth-login' } };
+  }
+
+  @Post('password-reset/request')
+  @ApiOperation({ summary: 'Yêu cầu đặt lại mật khẩu' })
+  async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
+    const token = await this.authService.requestPasswordReset(dto.email);
+    return { data: { accepted: true, ...(process.env.NODE_ENV !== 'production' && token ? { developmentToken: token } : {}) }, meta: { requestId: 'auth-password-reset-request' } };
+  }
+
+  @Post('password-reset/confirm')
+  @ApiOperation({ summary: 'Đặt lại mật khẩu bằng token một lần' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.password);
+    return { data: { reset: true }, meta: { requestId: 'auth-password-reset-confirm' } };
   }
 
   @Get('me')

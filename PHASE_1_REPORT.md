@@ -14,7 +14,10 @@ STATUS: Partial
 - Prisma schema nền tảng cho users, profiles, employees, departments, positions, roles, permissions, sessions, reset tokens và audit logs.
 - Seed local có chặn `NODE_ENV=production`.
 - Docker Compose định nghĩa PostgreSQL, Redis và MinIO với healthcheck cho PostgreSQL/Redis.
-- ESLint 9 flat config, TypeScript strict và test API đầu tiên.
+- ESLint 9 flat config, TypeScript strict, CI workflow và API tests.
+- Secure-cookie session authentication, CSRF logout, password reset token flow và server-side RBAC.
+- Users, departments và employees API với validation, permissions và object-level self-access check.
+- Request ID middleware và chuẩn lỗi API thống nhất.
 
 ## 2. Kiểm thử đã chạy
 
@@ -24,19 +27,16 @@ STATUS: Partial
 | `npx --yes pnpm@9.15.5 db:generate` | PASS |
 | `npx --yes pnpm@9.15.5 lint` | PASS |
 | `npx --yes pnpm@9.15.5 typecheck` | PASS |
-| `npx --yes pnpm@9.15.5 test` | PASS; 1 suite, 1 test |
+| `npx --yes pnpm@9.15.5 test` | PASS; auth/RBAC/password-reset/request-id tests |
 | `npx --yes pnpm@9.15.5 build` | PASS; API and web |
 | `docker compose config` | BLOCKED: Docker CLI is not installed |
 | Database migration/integration | NOT RUN: Docker/PostgreSQL unavailable |
 
 ## 3. Chưa hoàn thành
 
-- Authentication/session implementation.
-- Password reset implementation.
-- Permission guard and RBAC API.
-- Users/employees/departments endpoints.
-- Database migration execution and integration tests.
-- CI workflow.
+- Chạy migration và integration tests với PostgreSQL thật.
+- Redis-backed rate limiting và lockout controls.
+- Deployment/runbook hoàn chỉnh và quyết định production về SSO/MFA, email, retention, backup/RPO/RTO.
 
 ## 4. Cách chạy hiện tại
 

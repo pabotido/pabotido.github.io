@@ -25,12 +25,14 @@
 - [x] Add Next.js web application with Vietnamese app shell.
 - [x] Add NestJS API with `/api/v1`, validation, Swagger and health endpoints.
 - [x] Add initial Prisma schema for identity, access control and organization foundations.
-- [ ] Add secure session/auth flow, password reset token flow, rate limiting and RBAC permission guard.
+- [x] Add secure session/auth flow, password reset token flow and RBAC permission guard.
+- [ ] Add Redis-backed rate limiting and lockout controls.
 - [x] Add local-only seed with explicit development guard.
 - [x] Add PostgreSQL, Redis and optional MinIO Compose services with health checks.
 - [ ] Resolve Prisma client generation and run database migration validation.
 - [ ] Add shared ESLint 9 flat config and pass lint.
-- [ ] Add unit/integration test setup and initial auth/RBAC tests.
+- [x] Add unit test setup and auth/RBAC/password-reset tests.
+- [ ] Run integration tests against PostgreSQL.
 - [ ] Add CI checks for install, lint, typecheck, test and build.
 - [ ] Update README and phase documentation after verification.
 
@@ -45,11 +47,9 @@
 Foundation code, workspace, web shell, API health/Swagger, Prisma schema, Compose definition, local seed guard, lint, typecheck, unit test, build and Prisma client generation are implemented and verified.
 
 Remaining before Phase 1 can be Complete:
-- [ ] Secure session authentication and password reset flow.
-- [ ] Server-side permission guard and object/data-scope checks.
-- [ ] Users/employees/departments API and tests.
 - [ ] Run migration and integration tests against PostgreSQL.
-- [ ] CI workflow and complete deployment/runbook documentation.
+- [ ] Redis-backed rate limiting/lockout controls.
+- [ ] Complete deployment/runbook documentation and production policy decisions.
 
 ## Current blockers
 

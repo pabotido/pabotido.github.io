@@ -5,12 +5,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { ApiExceptionFilter } from './common/api-exception.filter';
+import { requestIdMiddleware } from './common/request-id.middleware';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.setGlobalPrefix(process.env.API_PREFIX ?? 'api/v1');
   app.use(helmet());
   app.use(cookieParser());
+  app.use(requestIdMiddleware);
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Enterprise Corporate Portal API')

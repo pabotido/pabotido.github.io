@@ -20,6 +20,21 @@ describe('AuthService', () => {
     expect(stored).not.toBe(result.token);
   });
 
+  it('creates a reset token and consumes it by changing the password', async () => {
+    const prisma = {
+      user: { findUnique: jest.fn().mockResolvedValue({ id: 'user-1', status: 'ACTIVE' }), update: jest.fn() },
+      passwordResetToken: { deleteMany: jest.fn(), create: jest.fn(), findUnique: jest.fn().mockResolvedValue({ id: 'reset-1', userId: 'user-1', usedAt: null, expiresAt: new Date(Date.now() + 60_000) }), update: jest.fn() },
+      userSession: { updateMany: jest.fn() },
+      $transaction: jest.fn().mockResolvedValue([]),
+    };
+    const service = new AuthService(prisma as never);
+    const token = await service.requestPasswordReset('user@example.com');
+    expect(token).toEqual(expect.any(String));
+    expect(prisma.passwordResetToken.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ userId: 'user-1', tokenHash: expect.any(String) }) }));
+    await service.resetPassword(token!, 'a-new-secure-password');
+    expect(prisma.$transaction).toHaveBeenCalled();
+  });
+
   it('rejects inactive users and bad credentials', async () => {
     const passwordHash = await hashPassword('secret');
     const prisma = { user: { findUnique: jest.fn().mockResolvedValue({ status: 'SUSPENDED', passwordHash }) } };

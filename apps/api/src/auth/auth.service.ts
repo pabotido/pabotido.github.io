@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createToken, hashPassword, hashToken, verifyPassword } from './crypto';
-import { SESSION_TTL_MS } from './auth.constants';
+import { RESET_TOKEN_TTL_MS, SESSION_TTL_MS } from './auth.constants';
 import type { AuthenticatedUser } from './auth.types';
 
 @Injectable()
@@ -33,6 +33,26 @@ export class AuthService {
 
   async revokeSession(sessionId: string): Promise<void> {
     await this.prisma.userSession.updateMany({ where: { id: sessionId, revokedAt: null }, data: { revokedAt: new Date() } });
+  }
+
+  async requestPasswordReset(email: string): Promise<string | null> {
+    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (!user || user.status !== 'ACTIVE') return null;
+    const token = createToken();
+    await this.prisma.passwordResetToken.deleteMany({ where: { userId: user.id, usedAt: null } });
+    await this.prisma.passwordResetToken.create({ data: { userId: user.id, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS) } });
+    return token;
+  }
+
+  async resetPassword(token: string, password: string): Promise<void> {
+    const resetToken = await this.prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) } });
+    if (!resetToken || resetToken.usedAt || resetToken.expiresAt <= new Date()) throw new UnauthorizedException('Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn');
+    const passwordHash = await hashPassword(password);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: resetToken.userId }, data: { passwordHash } }),
+      this.prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } }),
+      this.prisma.userSession.updateMany({ where: { userId: resetToken.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
+    ]);
   }
 
   async getUserById(id: string): Promise<AuthenticatedUser | null> {

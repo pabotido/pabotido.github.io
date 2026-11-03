@@ -32,4 +32,4 @@ npx --yes pnpm@9.15.5 dev
 - API health: `http://localhost:4000/api/v1/health`
 - Swagger: `http://localhost:4000/docs`
 
-Phase 1 hiện mới có web/API foundation, health endpoint và schema nền tảng. Auth/RBAC đầy đủ sẽ tiếp tục hoàn thiện trước khi phase được đánh dấu complete.
+Phase 1 hiện đã có web/API foundation, health endpoint, Prisma schema, session authentication, password reset, RBAC guard, users và organization APIs. Migration/integration cần PostgreSQL thật; rate limiting cần Redis adapter trước khi đánh dấu Phase 1 hoàn tất.
