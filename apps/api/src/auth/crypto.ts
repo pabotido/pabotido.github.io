@@ -1,7 +1,9 @@
 import { createHash, randomBytes, scrypt as nodeScrypt, timingSafeEqual } from 'node:crypto';
-import { promisify } from 'node:util';
 
-const scrypt = promisify(nodeScrypt);
+type ScryptOptions = { N: number; r: number; p: number };
+function scrypt(password: string, salt: string, keyLength: number, options: ScryptOptions): Promise<Buffer> {
+  return new Promise((resolve, reject) => nodeScrypt(password, salt, keyLength, options, (error, derivedKey) => error ? reject(error) : resolve(derivedKey as Buffer)));
+}
 const KEY_LENGTH = 64;
 const SCRYPT_OPTIONS = { N: 16384, r: 8, p: 1 };
 

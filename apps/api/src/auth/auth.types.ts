@@ -1,15 +1,10 @@
-import type { UserStatus } from '@prisma/client';
+import type { Request } from 'express';
 
 export type AuthenticatedUser = {
   id: string;
   email: string;
-  status: UserStatus;
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'TERMINATED';
   permissions: string[];
 };
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: AuthenticatedUser;
-    sessionId?: string;
-  }
-}
+export type AuthRequest = Request & { user?: AuthenticatedUser; sessionId?: string };
