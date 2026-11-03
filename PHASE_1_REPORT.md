@@ -13,7 +13,7 @@ STATUS: Partial
 - Health endpoints: `/api/v1/health`, `/api/v1/health/live`, `/api/v1/health/ready`.
 - Prisma schema nền tảng cho users, profiles, employees, departments, positions, roles, permissions, sessions, reset tokens và audit logs.
 - Seed local có chặn `NODE_ENV=production`.
-- Docker Compose định nghĩa PostgreSQL, Redis và MinIO với healthcheck cho PostgreSQL/Redis.
+- Docker Compose định nghĩa PostgreSQL, Redis và MinIO storage profile; PostgreSQL/Redis có healthcheck.
 - ESLint 9 flat config, TypeScript strict, CI workflow và API tests.
 - Secure-cookie session authentication, CSRF logout, password reset token flow và server-side RBAC.
 - Users, departments và employees API với validation, permissions và object-level self-access check.
@@ -29,13 +29,16 @@ STATUS: Partial
 | `npx --yes pnpm@9.15.5 typecheck` | PASS |
 | `npx --yes pnpm@9.15.5 test` | PASS; auth/RBAC/password-reset/request-id tests |
 | `npx --yes pnpm@9.15.5 build` | PASS; API and web |
-| `docker compose config` | BLOCKED: Docker CLI is not installed |
-| Database migration/integration | NOT RUN: Docker/PostgreSQL unavailable |
+| `docker compose ps` | PASS; PostgreSQL and Redis healthy |
+| `prisma migrate deploy` | PASS; migration `0001_init` applied |
+| `pnpm db:seed` | PASS; permissions and `super_admin` role seeded |
+| API runtime wiring | PASS; Nest application started and routes mapped |
 
 ## 3. Chưa hoàn thành
 
-- Chạy migration và integration tests với PostgreSQL thật.
-- Redis-backed rate limiting và lockout controls.
+- Chạy integration tests đầy đủ với PostgreSQL thật và thêm test cases cho users/organization.
+- Redis-backed rate limiting và login lockout controls.
+- Hoàn thiện MinIO storage integration/bucket bootstrap.
 - Deployment/runbook hoàn chỉnh và quyết định production về SSO/MFA, email, retention, backup/RPO/RTO.
 
 ## 4. Cách chạy hiện tại
@@ -44,8 +47,9 @@ STATUS: Partial
 npx --yes pnpm@9.15.5 install
 Copy-Item .env.example .env
 npx --yes pnpm@9.15.5 db:generate
-docker compose up -d postgres redis minio
-npx --yes pnpm@9.15.5 db:migrate
+docker compose up -d postgres redis
+# Optional: docker compose --profile storage up -d minio
+npx --yes pnpm@9.15.5 exec prisma migrate deploy --schema database/schema.prisma
 npx --yes pnpm@9.15.5 dev
 ```
 
@@ -53,10 +57,10 @@ npx --yes pnpm@9.15.5 dev
 
 - Skills discovered: chỉ có `skill-creator`, không liên quan trực tiếp đến Next.js/NestJS/Prisma.
 - Tools used: filesystem inspection, Git checks, pnpm, TypeScript, ESLint, Jest, Next build, Nest build, Prisma CLI.
-- Docker chưa dùng được vì chưa cài trên máy.
+- Docker Desktop hoạt động; PostgreSQL và Redis đã chạy healthy. MinIO storage profile bị registry từ chối pull và chưa được dùng trong smoke test.
 
 ## 6. Rủi ro
 
-- Chưa có authentication nên không được triển khai môi trường chia sẻ.
-- Chưa chạy migration với PostgreSQL thật.
-- Cảnh báo peer dependency webpack xuất hiện trong install, nhưng không chặn build/test hiện tại.
+- Chưa có Redis-backed rate limiting/lockout nên authentication chưa production-ready.
+- MinIO image/registry cần được pull thành công trước khi kiểm thử upload/storage.
+- Cảnh báo Next.js ESLint plugin xuất hiện trong build, nhưng không chặn build/test hiện tại.

@@ -4,7 +4,7 @@ Cổng thông tin và cộng tác nội bộ doanh nghiệp, triển khai theo t
 
 ## Trạng thái
 
-Đang ở **Phase 0 — Discovery & Architecture**. Repository ban đầu chỉ có GitHub Pages shell; chưa có tính năng production nào được tuyên bố hoàn thành.
+Đang ở **Phase 1 — Foundation** (Partial). Authentication, password reset, RBAC, users, departments, employees, Prisma migration và local PostgreSQL/Redis đã được triển khai và kiểm chứng. Rate limiting Redis-backed, MinIO storage integration và một số policy production vẫn còn trước khi production-ready.
 
 ## Tài liệu
 
@@ -23,8 +23,11 @@ Yêu cầu Node.js 20+ và Docker Desktop. Nếu Corepack không có quyền h�
 npx --yes pnpm@9.15.5 install
 Copy-Item .env.example .env
 npx --yes pnpm@9.15.5 db:generate
-docker compose up -d postgres redis minio
-npx --yes pnpm@9.15.5 db:migrate
+docker compose up -d postgres redis
+# Optional storage service when the MinIO registry is available:
+# docker compose --profile storage up -d minio
+npx --yes pnpm@9.15.5 exec prisma migrate deploy --schema database/schema.prisma
+npx --yes pnpm@9.15.5 db:seed
 npx --yes pnpm@9.15.5 dev
 ```
 
