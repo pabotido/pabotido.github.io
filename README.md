@@ -15,10 +15,21 @@ Cổng thông tin và cộng tác nội bộ doanh nghiệp, triển khai theo t
 - [Database design](docs/DATABASE.md)
 - [Security baseline](docs/SECURITY.md)
 
-## Môi trường hiện tại
+## Chạy local
 
-- Node.js `v24.22.1` đã có.
-- `pnpm` chưa có; Corepack activation không thực hiện được do quyền hệ thống (`EPERM`).
-- Docker/Compose chưa có.
+Yêu cầu Node.js 20+ và Docker Desktop. Nếu Corepack không có quyền hệ thống, dùng pnpm tạm thời:
 
-Vì vậy chưa thể chạy install, migration, service integration hoặc test thực tế. Không dùng thông tin này như môi trường staging/production.
+```powershell
+npx --yes pnpm@9.15.5 install
+Copy-Item .env.example .env
+npx --yes pnpm@9.15.5 db:generate
+docker compose up -d postgres redis minio
+npx --yes pnpm@9.15.5 db:migrate
+npx --yes pnpm@9.15.5 dev
+```
+
+- Web: `http://localhost:3000`
+- API health: `http://localhost:4000/api/v1/health`
+- Swagger: `http://localhost:4000/docs`
+
+Phase 1 hiện mới có web/API foundation, health endpoint và schema nền tảng. Auth/RBAC đầy đủ sẽ tiếp tục hoàn thiện trước khi phase được đánh dấu complete.

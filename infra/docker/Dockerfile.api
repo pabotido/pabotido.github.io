@@ -1,0 +1,17 @@
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY apps/api/package.json apps/api/package.json
+COPY packages packages
+COPY database database
+RUN pnpm install --filter @portal/api...
+COPY apps/api apps/api
+RUN pnpm --filter @portal/api prisma:generate && pnpm --filter @portal/api build
+
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/apps/api/dist ./apps/api/dist
+CMD ["node", "apps/api/dist/main.js"]
