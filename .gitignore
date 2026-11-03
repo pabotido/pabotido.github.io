@@ -10,3 +10,5 @@ coverage/
 pnpm-install.pid
 playwright-report/
 test-results/
+
+*.tsbuildinfo
