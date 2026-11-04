@@ -1,5 +1,56 @@
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
+export type CmsArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  status: 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED';
+  audienceType: 'COMPANY' | 'DEPARTMENT';
+  departmentId: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  author: { id: string; profile: { displayName: string | null } | null };
+  department: { id: string; name: string } | null;
+};
+
+export type CurrentUser = { id: string; email: string; permissions: string[] };
+export type CmsDepartment = { id: string; name: string };
+
+async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${apiUrl}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      ...(init?.body ? { 'content-type': 'application/json' } : {}),
+      ...(init?.method && init.method !== 'GET' ? { 'x-csrf-token': window.sessionStorage.getItem('portal_csrf') ?? '' } : {}),
+      ...init?.headers,
+    },
+  });
+  if (response.status === 401) {
+    window.location.assign('/login');
+    throw new Error('unauthorized');
+  }
+  const result = await response.json() as { data?: T; error?: { message?: string } };
+  if (!response.ok || result.data === undefined) throw new Error(result.error?.message ?? 'Yêu cầu không thành công. Vui lòng thử lại.');
+  return result.data;
+}
+
+export const listPublishedNews = () => apiRequest<CmsArticle[]>('/news');
+export const getPublishedNews = (slug: string) => apiRequest<CmsArticle>(`/news/${encodeURIComponent(slug)}`);
+export const listManagedArticles = () => apiRequest<CmsArticle[]>('/cms/articles');
+export const getCurrentUser = () => apiRequest<CurrentUser>('/auth/me');
+export const listCmsDepartments = () => apiRequest<CmsDepartment[]>('/cms/departments');
+export const createArticle = (input: Pick<CmsArticle, 'title' | 'slug' | 'summary' | 'body'> & { audienceType: CmsArticle['audienceType']; departmentId?: string }) =>
+  apiRequest<CmsArticle>('/cms/articles', { method: 'POST', body: JSON.stringify(input) });
+export const updateArticle = (id: string, input: Partial<Pick<CmsArticle, 'title' | 'slug' | 'summary' | 'body' | 'audienceType'>> & { departmentId?: string }) =>
+  apiRequest<CmsArticle>(`/cms/articles/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+export const submitArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articles/${id}/submit`, { method: 'POST' });
+export const approveArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articles/${id}/approve`, { method: 'POST' });
+export const publishArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articles/${id}/publish`, { method: 'POST' });
+
 export type DashboardData = {
   user: { displayName: string | null };
   stats: { activeEmployees: number; departments: number };

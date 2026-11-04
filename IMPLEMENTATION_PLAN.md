@@ -1,6 +1,6 @@
 # Implementation Plan
 
-## Current phase: Phase 1 — Foundation (partial; dashboard now uses real API data)
+## Current phase: Phase 2 — Enterprise Portal & CMS (partial; news editorial workflow slice)
 
 ### Repository baseline
 - Existing repository is a pnpm workspace containing `apps/web` (Next.js), `apps/api` (NestJS), Prisma schema, CI and Docker Compose.
@@ -34,14 +34,25 @@
 - [x] Add local-only admin seed with development/test guard and environment-provided credentials.
 - [x] Add PostgreSQL, Redis and optional MinIO Compose services with health checks.
 - [x] Generate the Prisma client.
-- [ ] Run database migration validation from an empty PostgreSQL database.
+- [x] Run database migration validation from an empty PostgreSQL database (GitHub Actions run 41819897433, commit `d7835b3`).
 - [x] Add shared ESLint 9 flat config and pass lint.
 - [x] Add unit test setup and auth/RBAC/password-reset tests.
-- [ ] Run integration tests against PostgreSQL.
+- [x] Run integration tests against PostgreSQL/Redis (GitHub Actions run 41819897433, commit `d7835b3`).
 - [x] Add CI checks for install, lint, typecheck, test and build.
 - [x] Configure CI PostgreSQL/Redis services, clean-database migration and auth integration-test gates.
 - [x] Update README and phase documentation after verification.
 - [x] Add API, database, security, deployment and local operations documentation.
+
+## Phase 2 implementation checklist
+
+- [x] Add CMS article schema and additive migration for editorial status and company/department audience.
+- [x] Add permission-protected API for draft creation/editing, review submission, approval and publication.
+- [x] Prevent authors from approving their own articles; enforce state transitions atomically and audit them.
+- [x] Restrict published feeds and article detail to company or the employee's department audience.
+- [x] Add Vietnamese reader and content workflow pages backed by the API.
+- [ ] Run CMS migration and PostgreSQL integration suite in hosted CI.
+- [ ] Add categories/tags, rich text editor and server-side HTML sanitization.
+- [ ] Add media library, scheduling, revisions/history, search, pagination and CMS E2E workflow.
 
 ## Dependencies and gates
 
@@ -54,12 +65,15 @@
 Foundation code, workspace, web shell, API health/Swagger/readiness, Prisma schema, Compose definition, local admin seed, Redis-backed authentication limits, CORS/CSRF protections, lint, typecheck, unit tests, build and Prisma client generation are implemented and verified.
 
 Remaining before Phase 1 can be Complete:
-- [ ] Run migration and integration tests against PostgreSQL.
-- [ ] Confirm the new PostgreSQL/Redis CI integration gate passes on GitHub.
+- [ ] Validate local Docker Compose startup and admin provisioning; Docker Desktop Linux engine is not running.
 - [x] Document current local deployment and operations; production deployment remains unresolved.
 - [ ] Confirm production policies (SSO/MFA, email, retention, file limits, RPO/RTO, organization model) and choose an approved runtime before production deployment.
 
 ## Current blockers
 
-- Docker CLI/Compose is installed, but the Docker daemon is not running, so database/Redis integration cannot be executed locally yet.
+- Docker CLI/Compose is installed, but the Docker Desktop Linux engine is not running, so local Compose startup and seed provisioning cannot be validated here. Hosted PostgreSQL/Redis migration and integration gates pass.
 - Production policies (SSO, email provider, retention, file limits, RPO/RTO and organization model) require owner confirmation before production deployment.
+
+## Phase 2 status: Partial
+
+The first CMS vertical slice supports article draft, review, approval and publication with company/department audience enforcement. Rich text, media, scheduling, history, taxonomy, search and end-to-end browser validation remain.

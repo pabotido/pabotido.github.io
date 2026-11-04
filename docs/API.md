@@ -33,8 +33,17 @@ All paths below are relative to `/api/v1`.
 | PATCH | `/departments/:id` | Session + `departments.manage` + CSRF | Update a department |
 | GET | `/employees` | Session + `employees.read` | List employees |
 | POST | `/employees` | Session + `employees.create` + CSRF | Create an employee record |
+| GET | `/news` | Session | List published company and department news visible to the current employee |
+| GET | `/news/:slug` | Session | Read a published article visible to the current employee; other audiences return 404 |
+| GET | `/cms/articles` | Session + `cms.news.read` | List managed articles across editorial states |
+| GET | `/cms/departments` | Session + `cms.news.create` | List departments for audience targeting |
+| POST | `/cms/articles` | Session + `cms.news.create` + CSRF | Create a draft article |
+| PATCH | `/cms/articles/:id` | Session + `cms.news.update` + CSRF | Update a draft article |
+| POST | `/cms/articles/:id/submit` | Session + `cms.news.update` + CSRF | Submit a draft for review |
+| POST | `/cms/articles/:id/approve` | Session + `cms.news.approve` + CSRF | Approve a pending article; authors cannot approve their own |
+| POST | `/cms/articles/:id/publish` | Session + `cms.news.publish` + CSRF | Publish an approved article immediately |
 
-The CMS, document, workflow, project/task, leave-management, notification, search and audit-management endpoints are not implemented yet.
+Other CMS capabilities (categories/tags, rich text/media, scheduled publication, revision history, search and full admin editing) and document, workflow, project/task, leave-management, notification, search and audit-management endpoints are not implemented yet.
 
 ## Authentication and error codes
 

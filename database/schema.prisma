@@ -21,6 +21,19 @@ enum EmployeeStatus {
   TERMINATED
 }
 
+enum CmsArticleStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContentAudienceType {
+  COMPANY
+  DEPARTMENT
+}
+
 model User {
   id              String               @id @default(uuid()) @db.Uuid
   email           String               @unique
@@ -33,6 +46,7 @@ model User {
   sessions        UserSession[]
   resetTokens     PasswordResetToken[]
   auditLogs       AuditLog[]
+  authoredArticles CmsArticle[]
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   @@map("users")
@@ -53,6 +67,7 @@ model Department {
   code        String     @unique
   name        String
   employees   Employee[]
+  cmsArticles CmsArticle[]
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
   @@map("departments")
@@ -158,4 +173,25 @@ model AuditLog {
   @@index([actorId, createdAt])
   @@index([resource, resourceId])
   @@map("audit_logs")
+}
+
+model CmsArticle {
+  id           String              @id @default(uuid()) @db.Uuid
+  title        String              @db.VarChar(180)
+  slug         String              @unique @db.VarChar(200)
+  summary      String              @db.VarChar(500)
+  body         String              @db.Text
+  status       CmsArticleStatus    @default(DRAFT)
+  audienceType ContentAudienceType @default(COMPANY) @map("audience_type")
+  departmentId String?             @map("department_id") @db.Uuid
+  authorId     String              @map("author_id") @db.Uuid
+  publishedAt  DateTime?           @map("published_at")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+  department   Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  author       User                @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([status, publishedAt])
+  @@index([audienceType, departmentId, status])
+  @@map("cms_articles")
 }
