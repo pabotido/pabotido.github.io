@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { OrganizationModule } from './organization/organization.module';
 import { UsersModule } from './users/users.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -17,8 +18,12 @@ import { DashboardModule } from './dashboard/dashboard.module';
         NODE_ENV: Joi.string().valid('development', 'test', 'staging', 'production').default('development'),
         PORT: Joi.number().port().default(4000),
         API_PREFIX: Joi.string().default('api/v1'),
+        AUTH_SECRET: Joi.string().min(32).required(),
+        REDIS_URL: Joi.string().uri({ scheme: ['redis', 'rediss'] }).default('redis://localhost:6379'),
+        TRUSTED_PROXY_CIDRS: Joi.string().allow('').default(''),
       }),
     }),
+    RedisModule,
     PrismaModule,
     AuthModule,
     UsersModule,

@@ -10,6 +10,8 @@ import { LoginDto, RequestPasswordResetDto, ResetPasswordDto } from './dto/login
 import { RequirePermissions } from './permissions.decorator';
 import { PermissionsGuard } from './permissions.guard';
 import { SessionGuard } from './session.guard';
+import { RateLimit } from './rate-limit.decorator';
+import { RateLimitGuard } from './rate-limit.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -17,6 +19,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @RateLimit({ name: 'auth:login', limit: 10, windowSeconds: 15 * 60 })
+  @UseGuards(RateLimitGuard)
   @ApiOperation({ summary: 'Đăng nhập bằng email và mật khẩu' })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(dto.email, dto.password);
@@ -26,6 +30,8 @@ export class AuthController {
   }
 
   @Post('password-reset/request')
+  @RateLimit({ name: 'auth:password-reset', limit: 5, windowSeconds: 15 * 60 })
+  @UseGuards(RateLimitGuard)
   @ApiOperation({ summary: 'Yêu cầu đặt lại mật khẩu' })
   async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
     const token = await this.authService.requestPasswordReset(dto.email);

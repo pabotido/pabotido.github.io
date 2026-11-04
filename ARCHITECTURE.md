@@ -43,9 +43,10 @@ Every module owns its controller, application service, input schema/DTO, authori
 3. Authentication middleware runs before permission guards.
 4. Permission checks are server-side and include object/data-scope checks.
 5. DTO/schema validation runs at the trust boundary.
-6. Mutations use transactions where multiple records must change atomically.
-7. Sensitive mutations and downloads emit audit events without secrets or raw sensitive content.
-8. Background work (email, notifications, scanning) is queued and retried with bounded attempts.
+6. Redis applies shared fixed-window limits to login and password-reset endpoints. Failed-login counters use a hash of normalized email; authentication fails closed when Redis is unavailable.
+7. Mutations use transactions where multiple records must change atomically.
+8. Sensitive mutations and downloads emit audit events without secrets or raw sensitive content.
+9. Background work (email, notifications, scanning) is queued and retried with bounded attempts.
 
 ## Initial data model
 

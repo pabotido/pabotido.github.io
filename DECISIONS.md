@@ -40,4 +40,11 @@
 - **Status:** Accepted.
 - **Decision:** Do not claim dependency installation, Docker execution or tests passed when the local environment cannot run them.
 - **Reason:** The specification requires real command results and forbids false completion claims.
-- **Current evidence:** Node.js is available; pnpm and Docker are unavailable; Corepack activation failed with EPERM in `C:\Program Files\nodejs`.
+- **Current evidence:** Node.js and pinned pnpm through Corepack are available; Docker CLI/Compose is installed, but the Docker daemon is not running.
+
+## ADR-0007 — Store authentication rate limits in Redis
+
+- **Status:** Accepted for Phase 1.
+- **Decision:** Use atomic Redis fixed-window counters for login (10 attempts per IP per 15 minutes) and password-reset requests (5 per IP per 15 minutes). Track failed login attempts by an HMAC-SHA-256 of normalized email, keyed with `AUTH_SECRET`, and block further attempts for the remainder of the 15-minute window after five failures.
+- **Reason:** Shared state enforces limits across API replicas without storing raw IP addresses or email addresses in Redis keys.
+- **Consequence:** Redis is required for API startup and authentication; if Redis is unavailable, authentication operations fail closed. Behind a reverse proxy, deployments must set `TRUSTED_PROXY_CIDRS` to the actual proxy ranges so per-IP limits use the real client IP safely. Current unit tests mock Redis; integration verification needs a running Redis service.

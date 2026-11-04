@@ -5,10 +5,11 @@ import { CsrfGuard } from './csrf.guard';
 import { AuthService } from './auth.service';
 import { PermissionsGuard } from './permissions.guard';
 import { SessionGuard } from './session.guard';
+import { RateLimitGuard } from './rate-limit.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, SessionGuard, PermissionsGuard, CsrfGuard, { provide: APP_GUARD, useClass: PermissionsGuard }],
+  providers: [AuthService, SessionGuard, PermissionsGuard, CsrfGuard, RateLimitGuard, { provide: APP_GUARD, useClass: PermissionsGuard }],
   exports: [AuthService, SessionGuard, PermissionsGuard, CsrfGuard],
 })
 export class AuthModule {}

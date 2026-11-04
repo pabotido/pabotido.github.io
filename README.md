@@ -6,7 +6,9 @@ Cổng thông tin và cộng tác nội bộ doanh nghiệp, triển khai theo t
 
 Đang ở **Phase 1 — Foundation** (Partial). Authentication, password reset, RBAC, users, departments, employees và dashboard API đã được triển khai. Dashboard web không còn dùng dữ liệu mẫu: chỉ hiển thị số liệu đọc từ PostgreSQL và nêu rõ các module chưa có API. CMS, documents, approvals, tasks, notifications, search và HR UI vẫn chưa hoàn thành.
 
-GitHub Pages static export đã được gỡ khỏi workflow vì không thể vận hành secure session và gọi API production đúng kiến trúc. Workflow hiện chỉ validate code; production cần một runtime Next.js/API có HTTPS, database, Redis và storage tương ứng.
+Workflow GitHub Pages hiện tạo bản xuất tĩnh, chỉ phù hợp để phục vụ giao diện public. Xác thực bằng cookie và portal gọi API cần runtime Next.js/API có HTTPS, PostgreSQL và Redis. Production cũng cần object storage khi tính năng upload tài liệu được triển khai.
+
+Khi API chạy sau reverse proxy, đặt `TRUSTED_PROXY_CIDRS` thành các CIDR proxy tin cậy để giới hạn theo đúng IP client; để trống khi API nhận kết nối trực tiếp.
 
 ## Tài liệu
 
