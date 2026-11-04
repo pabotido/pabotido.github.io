@@ -26,6 +26,11 @@ export class RedisService {
     return this.client.get(key);
   }
 
+  ping(): Promise<string> {
+    this.requireReady();
+    return this.client.ping();
+  }
+
   async delete(key: string): Promise<void> {
     this.requireReady();
     await this.client.del(key);

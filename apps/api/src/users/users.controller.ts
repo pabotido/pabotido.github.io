@@ -4,12 +4,13 @@ import type { AuthRequest } from '../auth/auth.types';
 import { RequirePermissions } from '../auth/permissions.decorator';
 import { PermissionsGuard } from '../auth/permissions.guard';
 import { SessionGuard } from '../auth/session.guard';
+import { CsrfGuard } from '../auth/csrf.guard';
 import { CreateUserDto, UpdateUserDto, UserIdParamDto } from './dto/user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
 @ApiCookieAuth('portal_session')
-@UseGuards(SessionGuard, PermissionsGuard)
+@UseGuards(SessionGuard, CsrfGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}

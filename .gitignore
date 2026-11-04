@@ -2,6 +2,7 @@ node_modules/
 .pnpm-store/
 .next/
 apps/web/out/
+.local-backups/
 dist/
 coverage/
 .env

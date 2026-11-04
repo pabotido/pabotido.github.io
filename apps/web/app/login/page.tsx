@@ -11,6 +11,9 @@ export default function LoginPage() {
     try {
       const response = await fetch(`${apiUrl}/auth/login`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
       if (!response.ok) { const body = await response.json().catch(() => null) as { error?: { message?: string } } | null; throw new Error(body?.error?.message ?? 'Đăng nhập không thành công'); }
+      const body = await response.json() as { data?: { csrfToken?: string } };
+      if (!body.data?.csrfToken) throw new Error('Không nhận được mã bảo vệ phiên. Vui lòng thử lại.');
+      window.sessionStorage.setItem('portal_csrf', body.data.csrfToken);
       window.location.assign('/');
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Đăng nhập không thành công'); setSubmitting(false); }
   }

@@ -26,10 +26,12 @@
 - [x] Add authenticated dashboard API and frontend loading/error/empty states.
 - [x] Replace hard-coded dashboard data with authenticated API data; static Pages export remains unsuitable for authenticated portal flows.
 - [x] Add NestJS API with `/api/v1`, validation, Swagger and health endpoints.
+- [x] Make readiness check PostgreSQL and Redis dependencies.
 - [x] Add initial Prisma schema for identity, access control and organization foundations.
 - [x] Add secure session/auth flow, password reset token flow and RBAC permission guard.
+- [x] Restrict credentialed CORS to `APP_URL`, protect authenticated mutations with CSRF, and return request IDs consistently.
 - [x] Add Redis-backed rate limiting and lockout controls for authentication endpoints.
-- [x] Add local-only seed with explicit development guard.
+- [x] Add local-only admin seed with development/test guard and environment-provided credentials.
 - [x] Add PostgreSQL, Redis and optional MinIO Compose services with health checks.
 - [x] Generate the Prisma client.
 - [ ] Run database migration validation from an empty PostgreSQL database.
@@ -38,6 +40,7 @@
 - [ ] Run integration tests against PostgreSQL.
 - [x] Add CI checks for install, lint, typecheck, test and build.
 - [x] Update README and phase documentation after verification.
+- [x] Add API, database, security, deployment and local operations documentation.
 
 ## Dependencies and gates
 
@@ -47,11 +50,12 @@
 
 ## Phase 1 status: Partial
 
-Foundation code, workspace, web shell, API health/Swagger, Prisma schema, Compose definition, local seed guard, Redis-backed authentication limits, lint, typecheck, unit tests, build and Prisma client generation are implemented and verified.
+Foundation code, workspace, web shell, API health/Swagger/readiness, Prisma schema, Compose definition, local admin seed, Redis-backed authentication limits, CORS/CSRF protections, lint, typecheck, unit tests, build and Prisma client generation are implemented and verified.
 
 Remaining before Phase 1 can be Complete:
 - [ ] Run migration and integration tests against PostgreSQL.
-- [ ] Complete deployment/runbook documentation and production policy decisions.
+- [x] Document current local deployment and operations; production deployment remains unresolved.
+- [ ] Confirm production policies (SSO/MFA, email, retention, file limits, RPO/RTO, organization model) and choose an approved runtime before production deployment.
 
 ## Current blockers
 

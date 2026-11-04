@@ -11,7 +11,7 @@
       "@nestjs/platform-express>multer": "2.5.0"
     }
   },
-  "engines": { "node": ">=20.0.0" },
+  "engines": { "node": ">=20.6.0" },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@prisma/client": "^6.19.3",
@@ -27,6 +27,6 @@
     "test": "pnpm -r test",
     "db:generate": "prisma generate --schema database/schema.prisma",
     "db:migrate": "prisma migrate dev --schema database/schema.prisma",
-    "db:seed": "tsx database/seed.ts"
+    "db:seed": "node --env-file=.env --import tsx database/seed.ts"
   }
 }

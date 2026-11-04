@@ -3,12 +3,13 @@ import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions } from '../auth/permissions.decorator';
 import { PermissionsGuard } from '../auth/permissions.guard';
 import { SessionGuard } from '../auth/session.guard';
+import { CsrfGuard } from '../auth/csrf.guard';
 import { CreateDepartmentDto, CreateEmployeeDto, UpdateDepartmentDto } from './dto/organization.dto';
 import { OrganizationService } from './organization.service';
 
 @ApiTags('organization')
 @ApiCookieAuth('portal_session')
-@UseGuards(SessionGuard, PermissionsGuard)
+@UseGuards(SessionGuard, CsrfGuard, PermissionsGuard)
 @Controller()
 export class OrganizationController {
   constructor(private readonly organization: OrganizationService) {}

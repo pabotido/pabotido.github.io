@@ -30,18 +30,12 @@ export async function getDashboard(signal?: AbortSignal): Promise<DashboardData>
   return result.data;
 }
 
-function readCookie(name: string) {
-  return document.cookie
-    .split('; ')
-    .find((cookie) => cookie.startsWith(`${name}=`))
-    ?.split('=').slice(1).join('=');
-}
-
-export async function revokeSession() {
-  const csrf = readCookie('portal_csrf');
-  await fetch(`${apiUrl}/auth/logout`, {
+export async function revokeSession(csrfToken: string | null) {
+  if (!csrfToken) throw new Error('Không tìm thấy mã bảo vệ phiên. Hãy tải lại trang và thử lại.');
+  const response = await fetch(`${apiUrl}/auth/logout`, {
     method: 'POST',
     credentials: 'include',
-    headers: csrf ? { 'x-csrf-token': decodeURIComponent(csrf) } : undefined,
+    headers: { 'x-csrf-token': csrfToken },
   });
+  if (!response.ok && response.status !== 401) throw new Error('Không thể đăng xuất. Vui lòng thử lại.');
 }

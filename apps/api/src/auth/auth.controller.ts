@@ -24,9 +24,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng nhập bằng email và mật khẩu' })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(dto.email, dto.password);
+    const csrfToken = createToken(24);
     response.cookie(SESSION_COOKIE, result.token, AUTH_COOKIE_OPTIONS);
-    response.cookie(CSRF_COOKIE, createToken(24), { httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' });
-    return { data: { user: result.user }, meta: { requestId: 'auth-login' } };
+    response.cookie(CSRF_COOKIE, csrfToken, { httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' });
+    return { data: { user: result.user, csrfToken }, meta: { requestId: 'auth-login' } };
   }
 
   @Post('password-reset/request')

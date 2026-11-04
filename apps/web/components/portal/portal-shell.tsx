@@ -12,14 +12,19 @@ type PortalShellProps = {
 
 export function PortalShell({ displayName, unavailableModules, children }: PortalShellProps) {
   const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const initials = displayName.trim().slice(0, 2).toUpperCase() || 'U';
 
   async function logout() {
     setLoggingOut(true);
+    setLogoutError(null);
     try {
-      await revokeSession();
-    } finally {
+      await revokeSession(window.sessionStorage.getItem('portal_csrf'));
+      window.sessionStorage.removeItem('portal_csrf');
       window.location.assign('/login');
+    } catch {
+      setLogoutError('Không thể đăng xuất lúc này. Vui lòng thử lại.');
+      setLoggingOut(false);
     }
   }
 
@@ -65,6 +70,7 @@ export function PortalShell({ displayName, unavailableModules, children }: Porta
             <span aria-hidden="true">↪</span>
           </button>
         </div>
+        {logoutError && <p className="form-error" role="alert">{logoutError}</p>}
       </aside>
       <main className="main-content">{children}</main>
     </div>

@@ -1,4 +1,4 @@
-# Phase 1 Report
+﻿# Phase 1 Report
 
 ```text
 PHASE: Phase 1 — Foundation
@@ -7,70 +7,52 @@ STATUS: Partial
 
 ## 1. Đã triển khai
 
-- Dashboard API được bảo vệ bằng session và lấy active employees, departments, user profile và audit activity từ PostgreSQL.
-- Web login gọi API thật; dashboard có loading, error và empty states. Dữ liệu chưa có module được hiển thị là chưa triển khai thay vì số liệu giả.
-- Static export/GitHub Pages deployment đã được gỡ vì không tương thích với secure cookie session và API runtime.
-
-- pnpm workspace với phiên bản `9.15.5`, lockfile và cấu trúc apps/packages.
-- Next.js 15 App Router web shell tiếng Việt.
-- NestJS API với prefix `/api/v1`, Helmet, cookie parser, ValidationPipe và Swagger.
-- Health endpoints: `/api/v1/health`, `/api/v1/health/live`, `/api/v1/health/ready`.
-- Prisma schema nền tảng cho users, profiles, employees, departments, positions, roles, permissions, sessions, reset tokens và audit logs.
-- Seed local có chặn `NODE_ENV=production`.
-- Docker Compose định nghĩa PostgreSQL, Redis và MinIO storage profile; PostgreSQL/Redis có healthcheck.
-- ESLint 9 flat config, TypeScript strict, CI workflow và API tests.
-- Secure-cookie session authentication, CSRF logout, password reset token flow và server-side RBAC.
-- Users, departments và employees API với validation, permissions và object-level self-access check.
-- Request ID middleware và chuẩn lỗi API thống nhất.
+- pnpm workspace (pnpm 9.15.5), Next.js 15 web shell tiếng Việt và NestJS API dưới `/api/v1`.
+- Prisma schema và migration khởi đầu cho users/profiles, employees, departments, positions, RBAC, sessions, reset tokens và audit logs.
+- Session cookie auth, password reset token một lần, session revoke, CSRF guard trên logout và các mutation user/organization, permission guard, user/organization APIs và dashboard API.
+- Redis-backed IP throttling cho login/password reset; account lockout theo HMAC của email chuẩn hóa. API fail closed khi Redis không sẵn sàng.
+- Credentialed CORS chỉ cho origin `APP_URL`; request ID được trả qua header và response metadata.
+- PostgreSQL/Redis readiness check; Docker Compose cho PostgreSQL/Redis và profile MinIO; local seed account có `super_admin` role, scrypt-hash password và guard development/test; GitHub Actions CI cho lint/typecheck/unit tests/build.
+- Tài liệu API, database, security, deployment và runbook mô tả rõ trạng thái hiện có.
 
 ## 2. Kiểm thử đã chạy
 
+Kết quả sau cập nhật CORS/CSRF/request-ID interceptor và tài liệu:
+
 | Command | Result |
 |---|---|
-| `npx --yes pnpm@9.15.5 install` | PASS; lockfile generated |
-| `npx --yes pnpm@9.15.5 db:generate` | PASS |
-| `npx --yes pnpm@9.15.5 lint` | PASS |
-| `npx --yes pnpm@9.15.5 typecheck` | PASS |
-| `npx --yes pnpm@9.15.5 test` | PASS; auth/RBAC/password-reset/request-id tests |
-| `npx --yes pnpm@9.15.5 build` | PASS; API and web |
-| `docker compose ps` | NOT RUN; Docker CLI unavailable in this environment |
-| `prisma migrate deploy` | NOT RUN; requires PostgreSQL/Docker |
-| `pnpm db:seed` | NOT RUN; requires PostgreSQL |
-| `npx --yes pnpm@9.15.5 --filter @portal/api test -- --runInBand` | PASS; 11 tests |
-| `npx --yes pnpm@9.15.5 --filter @portal/api build` | PASS |
-| `npx --yes pnpm@9.15.5 --filter @portal/web build` | PASS |
-| API runtime wiring | PASS; Nest application started and routes mapped |
+| `corepack pnpm -r lint` | PASS |
+| `corepack pnpm -r typecheck` | PASS |
+| `corepack pnpm -r test` | PASS; 35 API tests across 15 suites |
+| `corepack pnpm -r build` | PASS; API + static web export |
+| `corepack pnpm db:generate` | PASS; Prisma Client 6.19.3 |
+| `corepack pnpm audit --prod` | PASS; no known vulnerabilities |
+| Prisma migration against empty PostgreSQL | NOT RUN; no running Docker daemon/database |
+| PostgreSQL/Redis integration tests | NOT RUN |
+| Docker image build/start | NOT RUN; no running Docker daemon |
 
 ## 3. Chưa hoàn thành
 
-- Chưa có UI test/E2E test cho login và dashboard; web test script hiện chỉ là placeholder.
-- Chưa có production runtime để deploy Next.js và API cùng secure HTTPS domain.
+- Migration chưa được chạy từ database PostgreSQL trống; chưa có integration tests với PostgreSQL/Redis.
+- Seed account is local-only and uses the documented `.env.example` sample credential; change it before sharing a local environment.
+- GitHub Pages chỉ phục vụ static export; chưa có API runtime nên login/dashboard không hoạt động trên site production.
+- Chưa có CMS, document storage, workflow/approval, tasks/projects, HR workflows, notifications hay global search.
+- Chưa có production hosting, secret manager, backup/restore drill, monitoring/alerts, staging hoặc rollback pipeline.
+- Cần owner xác nhận SSO/MFA, retention/privacy, file limits, RPO/RTO, organization model và production email/runtime.
 
-- Chạy integration tests đầy đủ với PostgreSQL thật và thêm test cases cho users/organization.
-- Redis-backed rate limiting và login lockout controls.
-- Hoàn thiện MinIO storage integration/bucket bootstrap.
-- Deployment/runbook hoàn chỉnh và quyết định production về SSO/MFA, email, retention, backup/RPO/RTO.
+## 4. Cách chạy local
 
-## 4. Cách chạy hiện tại
+Xem [README](README.md), [Deployment](docs/DEPLOYMENT.md) và [Runbook](docs/RUNBOOK.md). Local setup cần Node 20.6+, pnpm 9.15.5 và Docker daemon đang chạy. `.env.example` chứa giá trị local-only cùng placeholder, không dùng cho staging/production.
 
-```powershell
-npx --yes pnpm@9.15.5 install
-Copy-Item .env.example .env
-npx --yes pnpm@9.15.5 db:generate
-docker compose up -d postgres redis
-# Optional: docker compose --profile storage up -d minio
-npx --yes pnpm@9.15.5 exec prisma migrate deploy --schema database/schema.prisma
-npx --yes pnpm@9.15.5 dev
-```
+## 5. Rủi ro và giới hạn
 
-## 5. Skills & tools
+- Email reset token chưa được gửi qua provider; development response tạm trả token để local flow có thể tích hợp.
+- MinIO chưa nối vào storage adapter.
+- Web test script còn placeholder; chưa có browser E2E.
+- Static Pages workflow vẫn deploy export; không dùng nó làm bằng chứng API/portal đã được triển khai.
 
-- Skills discovered: chỉ có `skill-creator`, không liên quan trực tiếp đến Next.js/NestJS/Prisma.
-- Tools used: filesystem inspection, Git checks, pnpm, TypeScript, ESLint, Jest, Next build, Nest build, Prisma CLI.
-- Docker CLI/Compose không có trong môi trường kiểm tra hiện tại, nên PostgreSQL/Redis migration và integration chưa chạy được.
+## 6. Skills & tools
 
-## 6. Rủi ro
-
-- Chưa có Redis-backed rate limiting/lockout nên authentication chưa production-ready.
-- MinIO image/registry cần được pull thành công trước khi kiểm thử upload/storage.
-- Cảnh báo Next.js ESLint plugin xuất hiện trong build, nhưng không chặn build/test hiện tại.
+- Skills applied across this phase: `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `security-and-hardening`, `api-and-interface-design`, `documentation-and-adrs`, `verification-before-completion`, `git-workflow-and-versioning`.
+- Tools used: repository inspection, pnpm/Corepack, Jest, ESLint, TypeScript, Nest/Next builds, Prisma generation, dependency audit and Git.
+- Docker Compose integration remains unverified because the Docker daemon is not running.

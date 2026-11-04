@@ -48,3 +48,10 @@
 - **Decision:** Use atomic Redis fixed-window counters for login (10 attempts per IP per 15 minutes) and password-reset requests (5 per IP per 15 minutes). Track failed login attempts by an HMAC-SHA-256 of normalized email, keyed with `AUTH_SECRET`, and block further attempts for the remainder of the 15-minute window after five failures.
 - **Reason:** Shared state enforces limits across API replicas without storing raw IP addresses or email addresses in Redis keys.
 - **Consequence:** Redis is required for API startup and authentication; if Redis is unavailable, authentication operations fail closed. Behind a reverse proxy, deployments must set `TRUSTED_PROXY_CIDRS` to the actual proxy ranges so per-IP limits use the real client IP safely. Current unit tests mock Redis; integration verification needs a running Redis service.
+
+## ADR-0008 — Restrict credentialed browser access and protect authenticated mutations
+
+- **Status:** Accepted for Phase 1.
+- **Decision:** Allow credentialed browser CORS requests only from the exact `APP_URL` origin. Require the double-submit CSRF cookie/header pair for unsafe methods on authenticated user and organization APIs, and on logout.
+- **Reason:** Browser session cookies are ambient credentials; broad CORS or unguarded state-changing routes would weaken the session boundary.
+- **Consequence:** Deployments must set `APP_URL` to the actual web origin. Future authenticated mutation controllers must attach `CsrfGuard`; the current tests cover the guard and controller wiring. Login/reset CSRF behavior and browser E2E coverage remain to be reviewed.
