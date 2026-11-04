@@ -55,3 +55,10 @@
 - **Decision:** Allow credentialed browser CORS requests only from the exact `APP_URL` origin. Require the double-submit CSRF cookie/header pair for unsafe methods on authenticated user and organization APIs, and on logout.
 - **Reason:** Browser session cookies are ambient credentials; broad CORS or unguarded state-changing routes would weaken the session boundary.
 - **Consequence:** Deployments must set `APP_URL` to the actual web origin. Future authenticated mutation controllers must attach `CsrfGuard`; the current tests cover the guard and controller wiring. Login/reset CSRF behavior and browser E2E coverage remain to be reviewed.
+
+## ADR-0009 — Restrict the development seed to loopback PostgreSQL
+
+- **Status:** Accepted for Phase 1.
+- **Decision:** Permit seed only when `NODE_ENV` is `development` or `test`, and `DATABASE_URL` resolves to a loopback host. Read the local administrator email/password from environment configuration and hash the password before storing it.
+- **Reason:** A local convenience seed must not provision a known administrator into staging or production because of a mistaken environment label or remote database URL.
+- **Consequence:** Local Compose maps PostgreSQL through loopback. Seed configuration is unit-tested; database writes still need integration verification.

@@ -21,7 +21,7 @@ export class DashboardService {
       user: user?.profile ?? { displayName: null, avatarUrl: null },
       stats: { activeEmployees, departments },
       recentActivity,
-      unavailableModules: ['notifications', 'approvals', 'documents', 'tasks', 'calendar'],
+      unavailableModules: ['calendar'],
     };
   }
 }

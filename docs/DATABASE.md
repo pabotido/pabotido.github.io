@@ -2,7 +2,7 @@
 
 ## Current schema
 
-PostgreSQL is the system of record. Prisma schema is `database/schema.prisma`; committed migrations live in `database/migrations/`. IDs use PostgreSQL UUIDs. Mutable records store UTC timestamps. The initial migration creates identity, organization, RBAC, sessions, password-reset and audit tables.
+PostgreSQL is the system of record. Prisma schema is `database/schema.prisma`; committed migrations live in `database/migrations/`. IDs use PostgreSQL UUIDs. Mutable records store UTC timestamps. Migrations create identity, organization, RBAC, sessions, password-reset, audit and initial CMS article tables.
 
 ```mermaid
 erDiagram
@@ -18,6 +18,12 @@ erDiagram
   USERS ||--o{ USER_SESSIONS : owns
   USERS ||--o{ PASSWORD_RESET_TOKENS : requests
   USERS ||--o{ AUDIT_LOGS : acts
+  USERS ||--o{ CMS_ARTICLES : authors
+  DEPARTMENTS ||--o{ CMS_ARTICLES : targets
+  CMS_ARTICLES ||--o{ CMS_ARTICLE_CATEGORIES : categorized
+  CMS_CATEGORIES ||--o{ CMS_ARTICLE_CATEGORIES : groups
+  CMS_ARTICLES ||--o{ CMS_ARTICLE_TAGS : tagged
+  CMS_TAGS ||--o{ CMS_ARTICLE_TAGS : labels
 ```
 
 ### Tables and constraints
@@ -31,7 +37,7 @@ erDiagram
 - `password_reset_tokens`: unique token hash, expiry and used timestamp; index by user and expiry.
 - `audit_logs`: actor, action, resource, optional JSON metadata/IP/user agent; indexes support actor chronology and resource lookup.
 
-CMS, documents, approvals, projects/tasks, notifications and HR-specific entities have not been added. Their schemas must arrive with the corresponding phase migration rather than being implied by this foundation schema.
+`cms_articles` stores plain-text content, unique slugs, authors, editorial states (`DRAFT`, `PENDING_REVIEW`, `APPROVED`, `PUBLISHED`, `ARCHIVED`), company/department audiences and publication time. Creation, edits and workflow transitions write audit events in the same transaction. `cms_categories` and `cms_tags` have unique names/slugs and many-to-many join tables to articles. Migrations `0002_cms_articles` and `0003_cms_taxonomy` add these schemas and indexes. Media, rich text and revision history are not implemented yet; other modules arrive with their corresponding phase migrations.
 
 ## Local development commands
 
@@ -43,10 +49,10 @@ corepack pnpm exec prisma migrate deploy --schema database/schema.prisma
 corepack pnpm db:seed
 ```
 
-`db:seed` loads `.env` and is allowed only with `NODE_ENV=development` or `test`. It upserts foundation permission keys, the `super_admin` role and a local administrator from `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD`, then assigns the role. The password is scrypt-hashed. The seed does not overwrite an existing user's password. The sample `admin@company.local` / `ChangeMe123!` credential is local-only; change it before sharing a development environment and never use it in staging/production.
+`db:seed` loads `.env` and is allowed only with `NODE_ENV=development` or `test`, and a `DATABASE_URL` whose host is loopback (`localhost`, `127.0.0.1` or `::1`). It upserts foundation permission keys, the `super_admin` role and a local administrator from `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD`, then assigns the role. The password is scrypt-hashed. The seed does not overwrite an existing user's password. The sample `admin@company.local` / `ChangeMe123!` credential is local-only; change it before sharing a development environment and never use it in staging/production.
 
 ## Migration status
 
-`0001_init` is committed and Prisma Client generation has been verified. Applying the migration to an empty PostgreSQL database and running database integration tests remain unverified because the local Docker daemon is unavailable. Do not mark the migration gate complete until it has been applied to a disposable empty database and the resulting schema has been checked.
+`0001_init`, `0002_cms_articles` and `0003_cms_taxonomy` are committed. Migration `0003` is applied locally and its CMS workflow/audience/taxonomy integration passes against PostgreSQL/Redis. Hosted CI still needs to validate the latest migration from an empty database.
 
 For production releases, run `prisma migrate deploy` as a controlled release step using the target environment's secret-injected `DATABASE_URL`. Back up the database before migrations that may alter or remove data. Never use `prisma migrate dev` against production.

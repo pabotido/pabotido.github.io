@@ -2,7 +2,7 @@
 
 ```text
 PHASE: Phase 1 — Foundation
-STATUS: Partial
+STATUS: Complete
 ```
 
 ## 1. Đã triển khai
@@ -12,7 +12,7 @@ STATUS: Partial
 - Session cookie auth, password reset token một lần, session revoke, CSRF guard trên logout và các mutation user/organization, permission guard, user/organization APIs và dashboard API.
 - Redis-backed IP throttling cho login/password reset; account lockout theo HMAC của email chuẩn hóa. API fail closed khi Redis không sẵn sàng.
 - Credentialed CORS chỉ cho origin `APP_URL`; request ID được trả qua header và response metadata.
-- PostgreSQL/Redis readiness check; Docker Compose cho PostgreSQL/Redis và profile MinIO; local seed account có `super_admin` role, scrypt-hash password và guard development/test; GitHub Actions CI cho lint/typecheck/unit tests/build.
+- PostgreSQL/Redis readiness check; Docker Compose cho PostgreSQL/Redis và profile MinIO; local seed account có `super_admin` role, scrypt-hash password và guard development/test; CI được cấu hình để migrate database trống và chạy auth integration tests với PostgreSQL/Redis service containers.
 - Tài liệu API, database, security, deployment và runbook mô tả rõ trạng thái hiện có.
 
 ## 2. Kiểm thử đã chạy
@@ -23,20 +23,22 @@ Kết quả sau cập nhật CORS/CSRF/request-ID interceptor và tài liệu:
 |---|---|
 | `corepack pnpm -r lint` | PASS |
 | `corepack pnpm -r typecheck` | PASS |
-| `corepack pnpm -r test` | PASS; 35 API tests across 15 suites |
+| `pnpm -r test` | PASS; 40 API tests across 16 suites |
 | `corepack pnpm -r build` | PASS; API + static web export |
 | `corepack pnpm db:generate` | PASS; Prisma Client 6.19.3 |
 | `corepack pnpm audit --prod` | PASS; no known vulnerabilities |
-| Prisma migration against empty PostgreSQL | NOT RUN; no running Docker daemon/database |
-| PostgreSQL/Redis integration tests | NOT RUN |
-| Docker image build/start | NOT RUN; no running Docker daemon |
+| Empty-database PostgreSQL migrations | PASS in GitHub Actions run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893); local migration deployment also applied CMS migration 0002 |
+| `pnpm --filter @portal/api test:integration` | PASS locally; 3 suites / 5 tests with PostgreSQL and Redis, including whole-app bootstrap |
+| API runtime smoke | PASS; app startup, readiness, local admin login, CSRF-protected draft create and submit; temporary data removed |
+| Local Compose and seed | PASS; PostgreSQL/Redis started, local-only seed ran without changing `.env` |
+| Hosted CI migration/integration gate | PASS in run [41824081649](https://github.com/pabotido/pabotido.github.io/actions/runs/41824081649); lint, typecheck, unit tests, clean-database migration, integration tests, build and production dependency audit succeeded |
+| Docker image build | NOT RUN; container image build is not required for Phase 1 local acceptance |
 
 ## 3. Chưa hoàn thành
 
-- Migration chưa được chạy từ database PostgreSQL trống; chưa có integration tests với PostgreSQL/Redis.
-- Seed account is local-only and uses the documented `.env.example` sample credential; change it before sharing a local environment.
+- Local Docker Compose startup and seed admin login were verified. The sample credential is local-only; change it before sharing an environment.
 - GitHub Pages chỉ phục vụ static export; chưa có API runtime nên login/dashboard không hoạt động trên site production.
-- Chưa có CMS, document storage, workflow/approval, tasks/projects, HR workflows, notifications hay global search.
+- CMS remains partial; document storage, approvals, tasks/projects, HR workflows, notifications and global search are still future phases.
 - Chưa có production hosting, secret manager, backup/restore drill, monitoring/alerts, staging hoặc rollback pipeline.
 - Cần owner xác nhận SSO/MFA, retention/privacy, file limits, RPO/RTO, organization model và production email/runtime.
 
@@ -55,4 +57,4 @@ Xem [README](README.md), [Deployment](docs/DEPLOYMENT.md) và [Runbook](docs/RUN
 
 - Skills applied across this phase: `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `security-and-hardening`, `api-and-interface-design`, `documentation-and-adrs`, `verification-before-completion`, `git-workflow-and-versioning`.
 - Tools used: repository inspection, pnpm/Corepack, Jest, ESLint, TypeScript, Nest/Next builds, Prisma generation, dependency audit and Git.
-- Docker Compose integration remains unverified because the Docker daemon is not running.
+- Docker Desktop Compose services were started for local migration and integration verification; hosted GitHub Actions provides the repeatable CI environment.

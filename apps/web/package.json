@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node -e \"console.log('Web tests will be added with the first interactive feature')\""
+    "test": "node -e \"console.log('Browser E2E runs from the workspace e2e script')\""
   },
   "dependencies": {
     "next": "^15.5.0",

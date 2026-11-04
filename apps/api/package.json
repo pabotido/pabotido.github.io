@@ -9,11 +9,13 @@
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
+    "test:integration": "jest --config jest.integration.config.js --runInBand",
     "prisma:generate": "pnpm --dir ../.. db:generate",
     "prisma:migrate": "pnpm --dir ../.. db:migrate",
     "prisma:seed": "pnpm --dir ../.. db:seed"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1161.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",

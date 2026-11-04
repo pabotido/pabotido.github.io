@@ -11,22 +11,29 @@
       "@nestjs/platform-express>multer": "2.5.0"
     }
   },
-  "engines": { "node": ">=20.6.0" },
+  "engines": {
+    "node": ">=20.6.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
+    "@playwright/test": "1.51.1",
     "@prisma/client": "^6.19.3",
+    "cross-env": "7.0.3",
     "prisma": "^6.19.3",
     "tsx": "^4.19.2",
     "typescript-eslint": "^8.46.0"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter @portal/api --filter @portal/web dev",
-    "build": "pnpm -r build",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "dev": "corepack pnpm --parallel --filter @portal/api --filter @portal/web dev",
+    "build": "corepack pnpm -r build",
+    "lint": "corepack pnpm -r lint",
+    "typecheck": "corepack pnpm -r typecheck",
+    "test": "corepack pnpm -r test",
     "db:generate": "prisma generate --schema database/schema.prisma",
     "db:migrate": "prisma migrate dev --schema database/schema.prisma",
-    "db:seed": "node --env-file=.env --import tsx database/seed.ts"
+    "db:seed": "node --env-file=.env --import tsx database/seed.ts",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium",
+    "storage:e2e": "cross-env MINIO_E2E=1 corepack pnpm --filter @portal/api test -- storage.runtime.e2e.spec.ts"
   }
 }
