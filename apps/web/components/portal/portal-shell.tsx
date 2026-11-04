@@ -63,6 +63,11 @@ export function PortalShell({ displayName, unavailableModules, children }: Porta
             <span aria-hidden="true">▤</span> Phòng ban <em>Đang làm</em>
           </span>
 
+          <p className="nav-label">VẬN HÀNH</p>
+          <Link className={`nav-item${pathname.startsWith('/operations') ? ' active' : ''}`} href="/operations">
+            <span aria-hidden="true">▣</span> Vận hành
+          </Link>
+
           <p className="nav-label">SẮP CÓ</p>
           {unavailableModules.map((module) => (
             <span className="nav-item disabled" key={module}>

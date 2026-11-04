@@ -10,6 +10,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { RedisModule } from './redis/redis.module';
 import { resolveWebOrigin } from './common/cors-origin';
 import { CmsModule } from './cms/cms.module';
+import { OperationsModule } from './operations/operations.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { CmsModule } from './cms/cms.module';
     OrganizationModule,
     HealthModule,
     CmsModule,
+    OperationsModule,
+    StorageModule,
   ],
 })
 export class AppModule {}

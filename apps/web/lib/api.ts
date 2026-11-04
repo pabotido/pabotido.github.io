@@ -65,6 +65,19 @@ export const submitArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articl
 export const approveArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articles/${id}/approve`, { method: 'POST' });
 export const publishArticle = (id: string) => apiRequest<CmsArticle>(`/cms/articles/${id}/publish`, { method: 'POST' });
 
+export type OperationsData = {
+  projects: Array<{ id: string; name: string; status: string; _count: { tasks: number; members: number } }>;
+  approvals: Array<{ id: string; title: string; status: string }>;
+  leaves: Array<{ id: string; reason: string; status: string; startDate: string; endDate: string }>;
+  notifications: Array<{ id: string; title: string; message: string; readAt: string | null }>;
+};
+
+export const listProjects = () => apiRequest<OperationsData['projects']>('/projects');
+export const listApprovals = () => apiRequest<OperationsData['approvals']>('/approvals');
+export const listLeaves = () => apiRequest<OperationsData['leaves']>('/leaves');
+export const listNotifications = () => apiRequest<OperationsData['notifications']>('/notifications');
+export const searchOperations = (q: string) => apiRequest<Record<string, unknown[]>>(`/search?q=${encodeURIComponent(q)}`);
+
 export type DashboardData = {
   user: { displayName: string | null };
   stats: { activeEmployees: number; departments: number };

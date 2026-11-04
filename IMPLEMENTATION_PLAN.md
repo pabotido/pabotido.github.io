@@ -1,6 +1,6 @@
 # Implementation Plan
 
-## Current phase: Phase 2 — Enterprise Portal & CMS (partial; news editorial workflow slice)
+## Current phase: Phase 3–6 — Operations vertical slice (partial; metadata, projects, tasks, approvals and notifications)
 
 ### Repository baseline
 - Existing repository is a pnpm workspace containing `apps/web` (Next.js), `apps/api` (NestJS), Prisma schema, CI and Docker Compose.
@@ -13,9 +13,9 @@
 - [x] Phase 0 — repository discovery, architecture, assumptions, initial ERD, threat model.
 - [x] Phase 1 — foundation: workspace, web/API shells, PostgreSQL/Prisma, Redis, auth, RBAC, users/employees/departments, health, Swagger, logging, CI.
 - [ ] Phase 2 — portal and CMS.
-- [ ] Phase 3 — document management and object storage.
-- [ ] Phase 4 — workflow and approvals.
-- [ ] Phase 5 — projects and tasks.
+- [ ] Phase 3 — document management and object storage (metadata/version foundation added; binary storage adapter pending).
+- [ ] Phase 4 — workflow and approvals (fixed approval request foundation added; dynamic workflow pending).
+- [ ] Phase 5 — projects and tasks (project/member/task foundation added; task lifecycle pending).
 - [ ] Phase 6 — HR capabilities and import/export.
 - [ ] Phase 7 — production hardening, observability, CI/CD, backup/restore and cloud deployment design.
 

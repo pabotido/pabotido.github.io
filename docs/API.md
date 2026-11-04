@@ -47,7 +47,7 @@ All paths below are relative to `/api/v1`.
 | POST | `/cms/articles/:id/approve` | Session + `cms.news.approve` + CSRF | Approve a pending article; authors cannot approve their own |
 | POST | `/cms/articles/:id/publish` | Session + `cms.news.publish` + CSRF | Publish an approved article immediately |
 
-Other CMS capabilities (categories/tags, rich text/media, scheduled publication, revision history, search and full admin editing) and document, workflow, project/task, leave-management, notification, search and audit-management endpoints are not implemented yet.
+Documents, projects/tasks, approval requests/actions and user notifications now have permission-protected foundation endpoints. Document endpoints store metadata and storage keys only; binary upload/download, object-storage adapter, dynamic workflows, task lifecycle, leave-management, global search and audit-management endpoints remain pending.
 
 ## Authentication and error codes
 
