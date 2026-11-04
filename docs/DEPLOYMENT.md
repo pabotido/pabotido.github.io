@@ -27,7 +27,7 @@ Web listens on `http://localhost:3000`; API listens on `http://localhost:4000`. 
 
 The API validates `NODE_ENV`, `PORT`, `API_PREFIX`, `AUTH_SECRET`, `REDIS_URL`, `TRUSTED_PROXY_CIDRS`, and `APP_URL` at startup. Keep `.env` local and inject environment-specific values through the deployment platform's secret/config facilities. `APP_URL` must be the exact web HTTP(S) origin without a path; it is the credentialed CORS allowlist. `TRUSTED_PROXY_CIDRS` must contain only actual trusted proxy ranges.
 
-The frontend reads `NEXT_PUBLIC_API_URL` at build time. Set it to the reachable HTTPS API base URL before building the web app; never set it to localhost in a public deployment. The API must allow the deployed web origin through `APP_URL`, and both services must use HTTPS for secure session cookies. Keep web and API on the same site (for example, sibling subdomains) or expose the API through a same-origin reverse proxy; the session cookie uses `SameSite=Lax`.
+The frontend reads `NEXT_PUBLIC_API_URL` at build time. Set the repository/environment variable `NEXT_PUBLIC_API_URL` to the reachable HTTPS API base URL before building the web app; the Pages workflow rejects missing, HTTP, and localhost values. Never set it to localhost in a public deployment. The API must allow the deployed web origin through `APP_URL`, and both services must use HTTPS for secure session cookies. Keep web and API on the same site (for example, sibling subdomains) or expose the API through a same-origin reverse proxy; the session cookie uses `SameSite=Lax`.
 
 ## Production architecture target (not provisioned)
 

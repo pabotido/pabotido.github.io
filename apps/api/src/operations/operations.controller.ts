@@ -7,7 +7,7 @@ import { CsrfGuard } from '../auth/csrf.guard';
 import { RequirePermissions } from '../auth/permissions.decorator';
 import { PermissionsGuard } from '../auth/permissions.guard';
 import { SessionGuard } from '../auth/session.guard';
-import { ApprovalActionDto, CreateApprovalDto, CreateDocumentDto, CreateLeaveRequestDto, CreateProjectDto, CreateTaskDto, LeaveDecisionDto, PageQueryDto, SearchQueryDto, UpdateTaskStatusDto } from './dto/operations.dto';
+import { ApprovalActionDto, CreateApprovalDto, CreateDocumentDto, CreateWorkflowDto, CreateLeaveRequestDto, CreateProjectDto, CreateTaskDto, LeaveDecisionDto, PageQueryDto, SearchQueryDto, UpdateTaskStatusDto } from './dto/operations.dto';
 import { OperationsService } from './operations.service';
 
 @ApiTags('operations')
@@ -30,7 +30,7 @@ export class OperationsController {
   @UseGuards(CsrfGuard)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 25 * 1024 * 1024 } }))
   @RequirePermissions('documents.create')
-  uploadDocument(@UploadedFile() file: { originalname: string; mimetype: string; size: number; buffer: Buffer }, @Req() request: AuthRequest) { return this.wrap(this.operations.uploadDocument(file, request.user!), 'documents-upload'); }
+  uploadDocument(@UploadedFile() file: { originalname: string; mimetype: string; size: number; buffer: Buffer } | undefined, @Req() request: AuthRequest) { return this.wrap(this.operations.uploadDocument(file, request.user!), 'documents-upload'); }
 
   @Get('documents/:id/download')
   @RequirePermissions('documents.read')
@@ -78,6 +78,15 @@ export class OperationsController {
   @UseGuards(CsrfGuard)
   @RequirePermissions('leave.manage')
   decideLeave(@Param('id') id: string, @Body() dto: LeaveDecisionDto, @Req() request: AuthRequest) { return this.wrap(this.operations.decideLeave(id, dto, request.user!), 'leaves-decision'); }
+
+  @Get('workflows')
+  @RequirePermissions('workflows.read')
+  listWorkflows() { return this.wrap(this.operations.listWorkflows(), 'workflows-list'); }
+
+  @Post('workflows')
+  @UseGuards(CsrfGuard)
+  @RequirePermissions('workflows.manage')
+  createWorkflow(@Body() dto: CreateWorkflowDto, @Req() request: AuthRequest) { return this.wrap(this.operations.createWorkflow(dto, request.user!), 'workflows-create'); }
 
   @Get('approvals')
   @RequirePermissions('approvals.read')

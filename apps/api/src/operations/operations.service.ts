@@ -4,7 +4,7 @@ import type { TaskStatus } from '@prisma/client';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
-import type { ApprovalActionDto, CreateApprovalDto, CreateDocumentDto, CreateLeaveRequestDto, CreateProjectDto, CreateTaskDto, LeaveDecisionDto, PageQueryDto, SearchQueryDto, UpdateTaskStatusDto } from './dto/operations.dto';
+import type { ApprovalActionDto, CreateApprovalDto, CreateDocumentDto, CreateWorkflowDto, CreateLeaveRequestDto, CreateProjectDto, CreateTaskDto, LeaveDecisionDto, PageQueryDto, SearchQueryDto, UpdateTaskStatusDto } from './dto/operations.dto';
 
 @Injectable()
 export class OperationsService {
@@ -22,7 +22,8 @@ export class OperationsService {
     });
   }
 
-  async uploadDocument(file: { originalname: string; mimetype: string; size: number; buffer: Buffer }, actor: AuthenticatedUser) {
+  async uploadDocument(file: { originalname: string; mimetype: string; size: number; buffer: Buffer } | undefined, actor: AuthenticatedUser) {
+    if (!file) throw new ConflictException('Tệp tải lên là bắt buộc');
     const storageKey = `documents/${actor.id}/${randomUUID()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
     await this.storage.put(storageKey, file.buffer, file.mimetype);
     return this.createDocument({ name: file.originalname, mimeType: file.mimetype, sizeBytes: file.size, storageKey }, actor);
@@ -54,23 +55,40 @@ export class OperationsService {
     return this.prisma.task.create({ data: { projectId: dto.projectId, title: dto.title.trim(), description: dto.description?.trim(), priority: dto.priority, creatorId: actor.id, assignees: dto.assigneeIds ? { createMany: { data: dto.assigneeIds.map((userId) => ({ userId })) } } : undefined }, include: { assignees: true } });
   }
 
+  listWorkflows() {
+    return this.prisma.workflowDefinition.findMany({ where: { active: true }, orderBy: { name: 'asc' }, include: { steps: { orderBy: { order: 'asc' }, select: { id: true, order: true, name: true, reviewerId: true } } } });
+  }
+
+  async createWorkflow(dto: CreateWorkflowDto, actor: AuthenticatedUser) {
+    if (dto.steps.length === 0) throw new ConflictException('Workflow phải có ít nhất một bước');
+    const reviewers = dto.steps.map((step) => step.reviewerId);
+    if (new Set(reviewers).size !== reviewers.length) throw new ConflictException('Mỗi bước phải có reviewer khác nhau');
+    return this.prisma.workflowDefinition.create({ data: { key: dto.key.trim(), name: dto.name.trim(), description: dto.description?.trim(), creatorId: actor.id, steps: { create: dto.steps.map((step, index) => ({ order: index + 1, name: step.name.trim(), reviewerId: step.reviewerId })) } }, include: { steps: { orderBy: { order: 'asc' } } } });
+  }
+
   listApprovals(actor: AuthenticatedUser) {
-    return this.prisma.approvalRequest.findMany({ where: actor.permissions.includes('approvals.manage') ? {} : { requesterId: actor.id }, orderBy: { updatedAt: 'desc' }, take: 100, include: { actions: { orderBy: { createdAt: 'desc' }, take: 10 } } });
+    return this.prisma.approvalRequest.findMany({ where: actor.permissions.includes('approvals.manage') ? {} : { requesterId: actor.id }, orderBy: { updatedAt: 'desc' }, take: 100, include: { actions: { orderBy: { createdAt: 'desc' }, take: 10 }, workflow: { include: { steps: { orderBy: { order: 'asc' }, select: { id: true, order: true, name: true, reviewerId: true } } } } } });
   }
 
   createApproval(dto: CreateApprovalDto, actor: AuthenticatedUser) {
-    return this.prisma.approvalRequest.create({ data: { type: dto.type.trim(), title: dto.title.trim(), payload: dto.payload, requesterId: actor.id, status: 'SUBMITTED' } });
+    return this.prisma.workflowDefinition.findFirst({ where: dto.workflowId ? { id: dto.workflowId, active: true } : undefined, include: { steps: { orderBy: { order: 'asc' } } } }).then((workflow) => {
+      if (dto.workflowId && !workflow) throw new NotFoundException('Không tìm thấy workflow đang hoạt động');
+      return this.prisma.approvalRequest.create({ data: { type: dto.type.trim(), title: dto.title.trim(), payload: dto.payload, requesterId: actor.id, status: 'SUBMITTED', workflowId: workflow?.id, currentStep: workflow ? 1 : undefined } });
+    });
   }
 
   async actionApproval(id: string, dto: ApprovalActionDto, actor: AuthenticatedUser) {
-    if (!actor.permissions.includes('approvals.manage')) throw new ConflictException('Bạn không có quyền xử lý yêu cầu duyệt');
-    const status = dto.type === 'APPROVE' ? 'APPROVED' : dto.type === 'REJECT' ? 'REJECTED' : 'CHANGES_REQUESTED';
+    if (!actor.permissions.includes('approvals.manage')) throw new ForbiddenException('Bạn không có quyền xử lý yêu cầu duyệt');
     return this.prisma.$transaction(async (tx) => {
-      const request = await tx.approvalRequest.findUnique({ where: { id } });
+      const request = await tx.approvalRequest.findUnique({ where: { id }, include: { workflow: { include: { steps: { orderBy: { order: 'asc' } } } } } });
       if (!request) throw new NotFoundException('Không tìm thấy yêu cầu duyệt');
       if (!['SUBMITTED', 'IN_REVIEW', 'CHANGES_REQUESTED'].includes(request.status)) throw new ConflictException('Yêu cầu không còn ở trạng thái có thể xử lý');
-      const updated = await tx.approvalRequest.update({ where: { id }, data: { status, reviewerId: actor.id }, include: { actions: true } });
-      await tx.approvalAction.create({ data: { requestId: id, actorId: actor.id, type: dto.type, comment: dto.comment?.trim() } });
+      const step = request.workflow?.steps.find((item) => item.order === request.currentStep);
+      if (step && step.reviewerId !== actor.id) throw new ForbiddenException('Bạn không phải reviewer của bước hiện tại');
+      const nextStep = step && request.workflow?.steps.find((item) => item.order === step.order + 1);
+      const status = dto.type === 'REJECT' ? 'REJECTED' : dto.type === 'REQUEST_CHANGES' ? 'CHANGES_REQUESTED' : nextStep ? 'IN_REVIEW' : 'APPROVED';
+      const updated = await tx.approvalRequest.update({ where: { id }, data: { status, reviewerId: actor.id, currentStep: nextStep?.order ?? request.currentStep }, include: { actions: true } });
+      await tx.approvalAction.create({ data: { requestId: id, actorId: actor.id, stepId: step?.id, type: dto.type, comment: dto.comment?.trim() } });
       await tx.auditLog.create({ data: { actorId: actor.id, action: `approval.${dto.type.toLowerCase()}`, resource: 'approval_request', resourceId: id } });
       return updated;
     });

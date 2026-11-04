@@ -1,4 +1,4 @@
-type LocalSeedConfig = {
+export type LocalSeedConfig = {
   nodeEnv: string | undefined;
   databaseUrl: string | undefined;
   adminEmail: string | undefined;

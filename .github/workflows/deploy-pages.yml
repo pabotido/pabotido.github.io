@@ -41,7 +41,17 @@ jobs:
       - name: Validate
         run: pnpm lint && pnpm typecheck && pnpm test
 
+      - name: Validate production API URL
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+        run: |
+          test -n "$NEXT_PUBLIC_API_URL"
+          case "$NEXT_PUBLIC_API_URL" in https://*) ;; *) echo "NEXT_PUBLIC_API_URL must be an HTTPS API base URL"; exit 1 ;; esac
+          case "$NEXT_PUBLIC_API_URL" in *localhost*|*127.0.0.1*) echo "NEXT_PUBLIC_API_URL must not point to localhost"; exit 1 ;; esac
+
       - name: Build static web export
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
         run: pnpm --filter @portal/web build
 
       - name: Preserve custom domain

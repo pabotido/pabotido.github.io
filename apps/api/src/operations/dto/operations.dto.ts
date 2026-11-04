@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { IsEnum, IsInt, IsObject, IsOptional, IsString, IsUUID, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsObject, IsOptional, IsString, IsUUID, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDocumentDto {
@@ -30,11 +30,24 @@ export class CreateTaskDto {
   @IsOptional() @IsUUID('4', { each: true }) assigneeIds?: string[];
 }
 
+export class WorkflowStepDto {
+  @IsString() @MinLength(2) @MaxLength(180) name!: string;
+  @IsUUID() reviewerId!: string;
+}
+
+export class CreateWorkflowDto {
+  @IsString() @MinLength(2) @MaxLength(100) key!: string;
+  @IsString() @MinLength(2) @MaxLength(180) name!: string;
+  @IsOptional() @IsString() @MaxLength(1000) description?: string;
+  @IsArray() steps!: WorkflowStepDto[];
+}
+
 export class CreateApprovalDto {
   @IsString() @MinLength(2) @MaxLength(100) type!: string;
   @IsString() @MinLength(2) @MaxLength(240) title!: string;
   @IsObject()
   payload!: Prisma.JsonObject;
+  @IsOptional() @IsUUID() workflowId?: string;
 }
 
 export class ApprovalActionDto {

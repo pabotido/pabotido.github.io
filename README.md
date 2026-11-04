@@ -1,5 +1,9 @@
 # Enterprise Corporate Portal
 
+## Production deployment requirement
+
+GitHub Pages is a static frontend only. Before the Pages workflow can deploy, configure the repository/environment variable `NEXT_PUBLIC_API_URL` with the real HTTPS API base URL (for example `https://api.example.com/api/v1`). The workflow rejects missing, localhost, and HTTP values so a public build cannot point visitors at their own computer. The API must separately provide HTTPS, credentialed CORS for the Pages origin, cookies, database, Redis, and object storage.
+
 Cổng thông tin và cộng tác nội bộ doanh nghiệp, triển khai theo tài liệu yêu cầu tại `PROJECT_SPEC_ENTERPRISE_CORPORATE_PORTAL.md`.
 
 ## Trạng thái

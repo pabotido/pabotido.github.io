@@ -1,4 +1,7 @@
-export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+if (process.env.NODE_ENV === 'production' && !process.env.CI && (!configuredApiUrl || /^https?:\/\/localhost(?::|\/)/i.test(configuredApiUrl) || /^https?:\/\/127\.0\.0\.1(?::|\/)/i.test(configuredApiUrl))) throw new Error('NEXT_PUBLIC_API_URL must be a deployed API URL for production builds');
+
+export const apiUrl = configuredApiUrl ?? 'http://localhost:4000/api/v1';
 
 export type CmsArticle = {
   id: string;
