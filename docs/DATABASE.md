@@ -49,6 +49,6 @@ corepack pnpm db:seed
 
 ## Migration status
 
-`0001_init` and `0002_cms_articles` are committed. Migration deployment from an empty PostgreSQL database and auth integration passed in GitHub Actions run [41819897433](https://github.com/pabotido/pabotido.github.io/actions/runs/41819897433) before migration 0002 was added. Migration 0002 and the CMS integration suite are pending the next hosted CI run. Local Docker verification remains unavailable because the Docker Desktop Linux engine is stopped.
+`0001_init` and `0002_cms_articles` are committed. Empty-database migration deployment, auth integration and CMS workflow/audience integration passed in GitHub Actions run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893). Local Docker Compose verification remains unavailable because the Docker Desktop Linux engine is stopped.
 
 For production releases, run `prisma migrate deploy` as a controlled release step using the target environment's secret-injected `DATABASE_URL`. Back up the database before migrations that may alter or remove data. Never use `prisma migrate dev` against production.

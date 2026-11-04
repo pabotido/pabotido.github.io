@@ -50,7 +50,7 @@
 - [x] Prevent authors from approving their own articles; enforce state transitions atomically and audit them.
 - [x] Restrict published feeds and article detail to company or the employee's department audience.
 - [x] Add Vietnamese reader and content workflow pages backed by the API.
-- [ ] Run CMS migration and PostgreSQL integration suite in hosted CI.
+- [x] Run CMS migration and PostgreSQL integration suite in hosted CI (run 41822335893).
 - [ ] Add categories/tags, rich text editor and server-side HTML sanitization.
 - [ ] Add media library, scheduling, revisions/history, search, pagination and CMS E2E workflow.
 

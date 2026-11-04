@@ -23,7 +23,7 @@ STATUS: Partial
 
 ## 3. Database
 
-- Migration: `0002_cms_articles`, additive schema; hosted clean-database validation awaits the next CI run.
+- Migration: `0002_cms_articles`, additive schema; clean-database migration passed in hosted CI run 41822335893.
 - Seed: adds CMS permissions to local `super_admin` seed.
 - Schema: article content, slug, author, editorial state, audience, optional department and published timestamp.
 
@@ -40,8 +40,9 @@ STATUS: Partial
 - Workspace lint: PASS.
 - Workspace typecheck: PASS.
 - API and web builds: PASS; Next static export includes `/news` and `/admin/cms/news`.
-- CMS PostgreSQL integration: added, awaits hosted CI run; local Docker engine is not running.
-- Production dependency audit: pending rerun for this change.
+- CMS PostgreSQL integration: PASS in hosted CI run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893), including audience isolation and state workflow.
+- Production dependency audit: PASS locally and in hosted CI; no known vulnerabilities found.
+- Browser E2E/accessibility inspection: NOT RUN; this environment has no Chrome DevTools MCP, Playwright CLI, or local Playwright package installed.
 
 ## 6. Local use
 
