@@ -33,7 +33,7 @@ corepack pnpm exec prisma migrate deploy --schema database/schema.prisma
 corepack pnpm db:seed
 ```
 
-The seed is local/test-only and refuses any `NODE_ENV` other than `development` or `test`. It creates permission rows, a `super_admin` role and an administrator account from `.env`. The example local password is documented in `README.md`; replace it before sharing the environment.
+The seed is local/test-only and refuses any `NODE_ENV` other than `development` or `test`, or a `DATABASE_URL` host other than loopback. It creates permission rows, a `super_admin` role and an administrator account from `.env`. The example local password is documented in `README.md`; replace it before sharing the environment.
 
 The empty-database migration procedure has not yet been run in this environment. Validate it against a disposable database before treating it as operationally proven.
 

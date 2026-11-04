@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../apps/api/src/auth/crypto';
-import { validateLocalSeedConfig } from './seed-config';
+import { validateLocalSeedConfig } from '../apps/api/src/common/local-seed-config';
 
 export async function seedLocal(prisma: PrismaClient, config: LocalSeedConfig): Promise<void> {
   const { adminEmail, adminPassword } = validateLocalSeedConfig(config);
@@ -33,6 +33,7 @@ async function main(): Promise<void> {
   try {
     await seedLocal(prisma, {
       nodeEnv: process.env.NODE_ENV,
+      databaseUrl: process.env.DATABASE_URL,
       adminEmail: process.env.LOCAL_ADMIN_EMAIL,
       adminPassword: process.env.LOCAL_ADMIN_PASSWORD,
     });

@@ -12,7 +12,7 @@ STATUS: Partial
 - Session cookie auth, password reset token một lần, session revoke, CSRF guard trên logout và các mutation user/organization, permission guard, user/organization APIs và dashboard API.
 - Redis-backed IP throttling cho login/password reset; account lockout theo HMAC của email chuẩn hóa. API fail closed khi Redis không sẵn sàng.
 - Credentialed CORS chỉ cho origin `APP_URL`; request ID được trả qua header và response metadata.
-- PostgreSQL/Redis readiness check; Docker Compose cho PostgreSQL/Redis và profile MinIO; local seed account có `super_admin` role, scrypt-hash password và guard development/test; GitHub Actions CI cho lint/typecheck/unit tests/build.
+- PostgreSQL/Redis readiness check; Docker Compose cho PostgreSQL/Redis và profile MinIO; local seed account có `super_admin` role, scrypt-hash password và guard development/test; CI được cấu hình để migrate database trống và chạy auth integration tests với PostgreSQL/Redis service containers.
 - Tài liệu API, database, security, deployment và runbook mô tả rõ trạng thái hiện có.
 
 ## 2. Kiểm thử đã chạy
@@ -23,18 +23,19 @@ Kết quả sau cập nhật CORS/CSRF/request-ID interceptor và tài liệu:
 |---|---|
 | `corepack pnpm -r lint` | PASS |
 | `corepack pnpm -r typecheck` | PASS |
-| `corepack pnpm -r test` | PASS; 35 API tests across 15 suites |
+| `corepack pnpm -r test` | PASS; 36 API tests across 15 suites |
 | `corepack pnpm -r build` | PASS; API + static web export |
 | `corepack pnpm db:generate` | PASS; Prisma Client 6.19.3 |
 | `corepack pnpm audit --prod` | PASS; no known vulnerabilities |
 | Prisma migration against empty PostgreSQL | NOT RUN; no running Docker daemon/database |
-| PostgreSQL/Redis integration tests | NOT RUN |
+| `pnpm --filter @portal/api test:integration` | CONFIGURED in CI; not run locally (requires PostgreSQL/Redis) |
+| Hosted CI migration/integration gate | NOT RUN; workflow change awaits a GitHub run |
 | Docker image build/start | NOT RUN; no running Docker daemon |
 
 ## 3. Chưa hoàn thành
 
 - Migration chưa được chạy từ database PostgreSQL trống; chưa có integration tests với PostgreSQL/Redis.
-- Seed account is local-only and uses the documented `.env.example` sample credential; change it before sharing a local environment.
+- Seed policy tests pass, but provisioning the administrator in PostgreSQL has not been run locally. The sample `.env.example` credential is local-only; change it before sharing an environment.
 - GitHub Pages chỉ phục vụ static export; chưa có API runtime nên login/dashboard không hoạt động trên site production.
 - Chưa có CMS, document storage, workflow/approval, tasks/projects, HR workflows, notifications hay global search.
 - Chưa có production hosting, secret manager, backup/restore drill, monitoring/alerts, staging hoặc rollback pipeline.

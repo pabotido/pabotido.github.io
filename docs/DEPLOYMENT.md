@@ -33,4 +33,6 @@ The frontend reads `NEXT_PUBLIC_API_URL` at build time. Set it to the reachable 
 
 Before deployment, choose and approve a container runtime, managed PostgreSQL, managed Redis, S3-compatible object storage, TLS/reverse proxy, secrets manager, backups, monitoring and staging environment. Estimate cost and document network boundaries first. Keep PostgreSQL private. Run migrations as a controlled release job before switching API traffic. Do not create cloud resources or incur provider costs from this repository without explicit approval.
 
+The GitHub Actions CI workflow provisions ephemeral PostgreSQL/Redis services, applies migrations to a fresh database, runs service-level auth integration tests, and then performs lint, typecheck, unit tests, build and production dependency audit. The workflow configuration has been added; its hosted run still needs to pass before that gate counts as verified.
+
 Production readiness gates include migration-from-empty verification, PostgreSQL/Redis integration tests, API and web container build/start tests, HTTPS cookie and CORS smoke tests, secret scanning, backup/restore drill, operational alerts, rollback instructions and owner decisions recorded in `DECISIONS.md`.

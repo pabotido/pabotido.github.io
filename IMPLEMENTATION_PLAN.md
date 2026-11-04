@@ -39,6 +39,7 @@
 - [x] Add unit test setup and auth/RBAC/password-reset tests.
 - [ ] Run integration tests against PostgreSQL.
 - [x] Add CI checks for install, lint, typecheck, test and build.
+- [x] Configure CI PostgreSQL/Redis services, clean-database migration and auth integration-test gates.
 - [x] Update README and phase documentation after verification.
 - [x] Add API, database, security, deployment and local operations documentation.
 
@@ -54,6 +55,7 @@ Foundation code, workspace, web shell, API health/Swagger/readiness, Prisma sche
 
 Remaining before Phase 1 can be Complete:
 - [ ] Run migration and integration tests against PostgreSQL.
+- [ ] Confirm the new PostgreSQL/Redis CI integration gate passes on GitHub.
 - [x] Document current local deployment and operations; production deployment remains unresolved.
 - [ ] Confirm production policies (SSO/MFA, email, retention, file limits, RPO/RTO, organization model) and choose an approved runtime before production deployment.
 

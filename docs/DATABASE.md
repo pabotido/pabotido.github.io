@@ -43,7 +43,7 @@ corepack pnpm exec prisma migrate deploy --schema database/schema.prisma
 corepack pnpm db:seed
 ```
 
-`db:seed` loads `.env` and is allowed only with `NODE_ENV=development` or `test`. It upserts foundation permission keys, the `super_admin` role and a local administrator from `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD`, then assigns the role. The password is scrypt-hashed. The seed does not overwrite an existing user's password. The sample `admin@company.local` / `ChangeMe123!` credential is local-only; change it before sharing a development environment and never use it in staging/production.
+`db:seed` loads `.env` and is allowed only with `NODE_ENV=development` or `test`, and a `DATABASE_URL` whose host is loopback (`localhost`, `127.0.0.1` or `::1`). It upserts foundation permission keys, the `super_admin` role and a local administrator from `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD`, then assigns the role. The password is scrypt-hashed. The seed does not overwrite an existing user's password. The sample `admin@company.local` / `ChangeMe123!` credential is local-only; change it before sharing a development environment and never use it in staging/production.
 
 ## Migration status
 

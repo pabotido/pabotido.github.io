@@ -43,6 +43,6 @@ npx --yes pnpm@9.15.5 dev
 - Dashboard API: `http://localhost:4000/api/v1/dashboard` (cần session cookie)
 - Swagger: `http://localhost:4000/docs`
 
-Local seed tạo tài khoản `admin@company.local` từ `LOCAL_ADMIN_PASSWORD` trong `.env`; mật khẩu mẫu `ChangeMe123!` chỉ dành cho local, hãy đổi trước khi chia sẻ môi trường và không dùng ở staging/production. Seed bị từ chối nếu `NODE_ENV` khác `development` hoặc `test`.
+Local seed tạo tài khoản `admin@company.local` từ `LOCAL_ADMIN_PASSWORD` trong `.env`; mật khẩu mẫu `ChangeMe123!` chỉ dành cho local, hãy đổi trước khi chia sẻ môi trường và không dùng ở staging/production. Seed bị từ chối nếu `NODE_ENV` khác `development`/`test` hoặc `DATABASE_URL` không trỏ về loopback.
 
 Phase 1 hiện đã có web/API foundation, health/readiness endpoints, Prisma schema, session authentication, password reset, RBAC guard, users và organization APIs. Login throttling dùng Redis; CORS giới hạn theo `APP_URL`; route ghi dữ liệu cần CSRF token. Migration/integration cần PostgreSQL và Redis thật trước khi đánh dấu Phase 1 hoàn tất.

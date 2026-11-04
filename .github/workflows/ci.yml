@@ -5,9 +5,39 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://portal:${{ github.run_id }}-ci-only@localhost:5432/enterprise_portal_ci
+      REDIS_URL: redis://localhost:6379
+      APP_URL: http://localhost:3000
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: portal
+          POSTGRES_PASSWORD: ${{ github.run_id }}-ci-only
+          POSTGRES_DB: enterprise_portal_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portal -d enterprise_portal_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -17,9 +47,14 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+      - name: Generate an ephemeral auth secret
+        run: printf 'AUTH_SECRET=%s\n' "$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
+      - run: pnpm exec prisma migrate deploy --schema database/schema.prisma
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter @portal/api test:integration
       - run: pnpm build
+      - run: pnpm audit --prod
