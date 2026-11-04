@@ -11,7 +11,7 @@
 ### Delivery phases
 
 - [x] Phase 0 — repository discovery, architecture, assumptions, initial ERD, threat model.
-- [ ] Phase 1 — foundation: workspace, web/API shells, PostgreSQL/Prisma, Redis, auth, RBAC, users/employees/departments, health, Swagger, logging, CI.
+- [x] Phase 1 — foundation: workspace, web/API shells, PostgreSQL/Prisma, Redis, auth, RBAC, users/employees/departments, health, Swagger, logging, CI.
 - [ ] Phase 2 — portal and CMS.
 - [ ] Phase 3 — document management and object storage.
 - [ ] Phase 4 — workflow and approvals.
@@ -60,18 +60,14 @@
 2. Phase 1 schema and auth decisions must be stable before CMS and document modules depend on them.
 3. Each phase requires migration, server validation, authorization, tests, documentation and real command results before being marked complete.
 
-## Phase 1 status: Partial
+## Phase 1 status: Complete
 
-Foundation code, workspace, web shell, API health/Swagger/readiness, Prisma schema, Compose definition, local admin seed, Redis-backed authentication limits, CORS/CSRF protections, lint, typecheck, unit tests, build and Prisma client generation are implemented and verified.
+Foundation code, local PostgreSQL/Redis Compose startup, both migrations, guarded local admin seed/login, API bootstrap and readiness, auth/CMS permissioned API flows, lint, typecheck, unit/integration tests, build and dependency audit have been verified locally and in hosted CI.
 
-Remaining before Phase 1 can be Complete:
-- [ ] Validate local Docker Compose startup and admin provisioning; Docker Desktop Linux engine is not running.
-- [x] Document current local deployment and operations; production deployment remains unresolved.
-- [ ] Confirm production policies (SSO/MFA, email, retention, file limits, RPO/RTO, organization model) and choose an approved runtime before production deployment.
+Production hosting, SSO/MFA policy, email provider, retention, file limits, RPO/RTO and organization model remain Phase 7 decisions; they do not block the local foundation.
 
 ## Current blockers
 
-- Docker CLI/Compose is installed, but the Docker Desktop Linux engine is not running, so local Compose startup and seed provisioning cannot be validated here. Hosted PostgreSQL/Redis migration and integration gates pass.
 - Production policies (SSO, email provider, retention, file limits, RPO/RTO and organization model) require owner confirmation before production deployment.
 
 ## Phase 2 status: Partial

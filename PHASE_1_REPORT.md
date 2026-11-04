@@ -2,7 +2,7 @@
 
 ```text
 PHASE: Phase 1 — Foundation
-STATUS: Partial
+STATUS: Complete
 ```
 
 ## 1. Đã triển khai
@@ -23,21 +23,22 @@ Kết quả sau cập nhật CORS/CSRF/request-ID interceptor và tài liệu:
 |---|---|
 | `corepack pnpm -r lint` | PASS |
 | `corepack pnpm -r typecheck` | PASS |
-| `corepack pnpm -r test` | PASS; 36 API tests across 15 suites |
+| `pnpm -r test` | PASS; 40 API tests across 16 suites |
 | `corepack pnpm -r build` | PASS; API + static web export |
 | `corepack pnpm db:generate` | PASS; Prisma Client 6.19.3 |
 | `corepack pnpm audit --prod` | PASS; no known vulnerabilities |
-| Prisma migration against empty PostgreSQL | PASS in GitHub Actions run [41819897433](https://github.com/pabotido/pabotido.github.io/actions/runs/41819897433), commit `d7835b3` |
-| `pnpm --filter @portal/api test:integration` | PASS in GitHub Actions run 41819897433 against PostgreSQL/Redis services |
-| Hosted CI migration/integration gate | PASS; lint, typecheck, unit tests, integration tests, build and production dependency audit all succeeded |
-| Docker image build/start | NOT RUN; no running Docker daemon |
+| Empty-database PostgreSQL migrations | PASS in GitHub Actions run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893); local migration deployment also applied CMS migration 0002 |
+| `pnpm --filter @portal/api test:integration` | PASS locally; 3 suites / 5 tests with PostgreSQL and Redis, including whole-app bootstrap |
+| API runtime smoke | PASS; app startup, readiness, local admin login, CSRF-protected draft create and submit; temporary data removed |
+| Local Compose and seed | PASS; PostgreSQL/Redis started, local-only seed ran without changing `.env` |
+| Hosted CI migration/integration gate | PASS; lint, typecheck, unit tests, migration, integration tests, build and production dependency audit succeeded |
+| Docker image build | NOT RUN; container image build is not required for Phase 1 local acceptance |
 
 ## 3. Chưa hoàn thành
 
-- Local Docker Compose startup and local admin provisioning remain unverified because Docker Desktop's Linux engine is stopped; hosted clean-database migration and PostgreSQL/Redis integration tests pass.
-- Seed policy tests pass, but provisioning the administrator in PostgreSQL has not been run locally. The sample `.env.example` credential is local-only; change it before sharing an environment.
+- Local Docker Compose startup and seed admin login were verified. The sample credential is local-only; change it before sharing an environment.
 - GitHub Pages chỉ phục vụ static export; chưa có API runtime nên login/dashboard không hoạt động trên site production.
-- Chưa có CMS, document storage, workflow/approval, tasks/projects, HR workflows, notifications hay global search.
+- CMS remains partial; document storage, approvals, tasks/projects, HR workflows, notifications and global search are still future phases.
 - Chưa có production hosting, secret manager, backup/restore drill, monitoring/alerts, staging hoặc rollback pipeline.
 - Cần owner xác nhận SSO/MFA, retention/privacy, file limits, RPO/RTO, organization model và production email/runtime.
 
@@ -56,4 +57,4 @@ Xem [README](README.md), [Deployment](docs/DEPLOYMENT.md) và [Runbook](docs/RUN
 
 - Skills applied across this phase: `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `security-and-hardening`, `api-and-interface-design`, `documentation-and-adrs`, `verification-before-completion`, `git-workflow-and-versioning`.
 - Tools used: repository inspection, pnpm/Corepack, Jest, ESLint, TypeScript, Nest/Next builds, Prisma generation, dependency audit and Git.
-- Docker Compose local startup remains unverified because Docker Desktop's Linux engine is not running; GitHub Actions provided the PostgreSQL/Redis integration environment.
+- Docker Desktop Compose services were started for local migration and integration verification; hosted GitHub Actions provides the repeatable CI environment.

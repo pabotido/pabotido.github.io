@@ -41,6 +41,8 @@ STATUS: Partial
 - Workspace typecheck: PASS.
 - API and web builds: PASS; Next static export includes `/news` and `/admin/cms/news`.
 - CMS PostgreSQL integration: PASS in hosted CI run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893), including audience isolation and state workflow.
+- Local API runtime: PASS; readiness, admin login, CSRF-protected draft creation and review submission; temporary test records removed.
+- Local PostgreSQL/Redis integration: PASS, 3 suites / 5 tests.
 - Production dependency audit: PASS locally and in hosted CI; no known vulnerabilities found.
 - Browser E2E/accessibility inspection: NOT RUN; this environment has no Chrome DevTools MCP, Playwright CLI, or local Playwright package installed.
 
@@ -55,5 +57,5 @@ Apply migrations and seed with the local-only setup in `README.md`, then run web
 
 ## 8. Skills & tools
 
-- Skills read/applied: `using-agent-skills`, `brainstorming`, `incremental-implementation`, `api-and-interface-design`, `frontend-ui-engineering`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `verification-before-completion`.
+- Skills read/applied: `using-agent-skills`, `brainstorming`, `incremental-implementation`, `api-and-interface-design`, `frontend-ui-engineering`, `systematic-debugging`, `browser-testing-with-devtools`, `playwright-cli`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `verification-before-completion`.
 - Tools: Prisma generation, Jest, ESLint, TypeScript, Nest build, Next build, GitHub Actions public status API.

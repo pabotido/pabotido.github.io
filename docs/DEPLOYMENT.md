@@ -2,7 +2,7 @@
 
 ## Supported state
 
-The repository currently supports local development with PostgreSQL and Redis in Docker Compose while the web and API run through the pnpm workspace. `infra/docker/Dockerfile.api` describes an API image, but container build/start has not been verified because the local Docker daemon is unavailable. There is no production web/API runtime configuration, migration release job, secret-manager integration, or staging environment in this repository.
+The repository currently supports local development with PostgreSQL and Redis in Docker Compose while the web and API run through the pnpm workspace. PostgreSQL/Redis Compose startup has been verified locally. `infra/docker/Dockerfile.api` describes an API image, but the API container build/start has not been verified. There is no production web/API runtime configuration, migration release job, secret-manager integration, or staging environment in this repository.
 
 The GitHub Pages workflow deploys `apps/web/out`, a Next.js static export. It can host public static pages. It cannot host the API process, PostgreSQL, Redis, or the cookie-authenticated portal. The current login/dashboard pages require an API and will not provide a working authenticated portal on GitHub Pages by themselves. Do not treat a green Pages deployment as a portal deployment.
 

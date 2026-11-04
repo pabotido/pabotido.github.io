@@ -45,6 +45,6 @@ npx --yes pnpm@9.15.5 dev
 
 Local seed tạo tài khoản `admin@company.local` từ `LOCAL_ADMIN_PASSWORD` trong `.env`; mật khẩu mẫu `ChangeMe123!` chỉ dành cho local, hãy đổi trước khi chia sẻ môi trường và không dùng ở staging/production. Seed bị từ chối nếu `NODE_ENV` khác `development`/`test` hoặc `DATABASE_URL` không trỏ về loopback.
 
-Phase 1 hiện đã có web/API foundation, health/readiness endpoints, Prisma schema, session authentication, password reset, RBAC guard, users và organization APIs. Login throttling dùng Redis; CORS giới hạn theo `APP_URL`; route ghi dữ liệu cần CSRF token. Migration từ database trống và auth integration đã pass trên GitHub Actions; local Docker Compose/admin seed vẫn chưa được xác minh vì Docker Desktop Linux engine chưa chạy.
+Phase 1 foundation đã được xác minh: PostgreSQL/Redis Compose, migration database trống, local admin seed/login, API bootstrap/readiness, auth integration và quality gates. Login throttling dùng Redis; CORS giới hạn theo `APP_URL`; route ghi dữ liệu cần CSRF token. CMS tin tức đang ở Phase 2 (Partial).
 
 CMS: mở `http://localhost:3000/news` để đọc tin và `http://localhost:3000/admin/cms/news` để quản lý bài theo quyền tài khoản.
