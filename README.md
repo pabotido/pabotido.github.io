@@ -4,7 +4,7 @@ Cổng thông tin và cộng tác nội bộ doanh nghiệp, triển khai theo t
 
 ## Trạng thái
 
-Đang ở **Phase 2 — Enterprise Portal & CMS** (Partial). Nền tảng authentication, RBAC, users, departments, employees và dashboard API đã có. CMS hiện hỗ trợ bài viết bản nháp → gửi duyệt → duyệt → xuất bản, giới hạn audience theo công ty/phòng ban, cùng trang đọc tin và trang quản lý. Migration CMS và PostgreSQL integration test đang chờ hosted CI xác minh. Categories/tags, rich text/media, lịch xuất bản, lịch sử phiên bản, search và các module documents, approvals, tasks, notifications, HR vẫn chưa hoàn thành.
+Đang ở **Phase 2 — Enterprise Portal & CMS** (Partial). Nền tảng authentication, RBAC, users, departments, employees và dashboard API đã có. CMS hiện hỗ trợ bài viết bản nháp → gửi duyệt → duyệt → xuất bản, audience công ty/phòng ban, categories/tags, tìm kiếm/lọc/phân trang và trang quản lý. Migration taxonomy đã qua local integration; hosted CI run mới đang chờ. Rich text/media, lịch xuất bản, lịch sử phiên bản và các module documents, approvals, tasks, notifications, HR vẫn chưa hoàn thành.
 
 Workflow GitHub Pages hiện tạo bản xuất tĩnh, chỉ phù hợp để phục vụ giao diện public. Xác thực bằng cookie và portal gọi API cần runtime Next.js/API có HTTPS, PostgreSQL và Redis. Production cũng cần object storage khi tính năng upload tài liệu được triển khai.
 

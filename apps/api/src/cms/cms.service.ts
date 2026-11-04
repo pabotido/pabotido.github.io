@@ -2,21 +2,38 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException } 
 import type { CmsArticleStatus, ContentAudienceType, Prisma } from '@prisma/client';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { PrismaService } from '../prisma/prisma.service';
-import type { CreateArticleDto, UpdateArticleDto } from './dto/article.dto';
+import type { CreateArticleDto, CreateTaxonomyDto, NewsQueryDto, UpdateArticleDto } from './dto/article.dto';
 
 const articleSelect = {
   id: true, title: true, slug: true, summary: true, body: true, status: true,
   audienceType: true, departmentId: true, publishedAt: true, createdAt: true, updatedAt: true,
   author: { select: { id: true, profile: { select: { displayName: true } } } },
   department: { select: { id: true, name: true } },
+  categories: { select: { category: { select: { id: true, name: true, slug: true } } } },
+  tags: { select: { tag: { select: { id: true, name: true, slug: true } } } },
 } satisfies Prisma.CmsArticleSelect;
 
 @Injectable()
 export class CmsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listPublished(user: AuthenticatedUser) {
-    return this.prisma.cmsArticle.findMany({ where: await this.publishedWhere(user), orderBy: { publishedAt: 'desc' }, take: 50, select: articleSelect });
+  async listPublished(user: AuthenticatedUser, query: NewsQueryDto) {
+    const filters: Prisma.CmsArticleWhereInput[] = [];
+    if (query.category) filters.push({ categories: { some: { category: { slug: query.category } } } });
+    if (query.tag) filters.push({ tags: { some: { tag: { slug: query.tag } } } });
+    if (query.q) filters.push({ OR: [
+      { title: { contains: query.q, mode: 'insensitive' } },
+      { summary: { contains: query.q, mode: 'insensitive' } },
+      { body: { contains: query.q, mode: 'insensitive' } },
+    ] });
+    const where: Prisma.CmsArticleWhereInput = { AND: [await this.publishedWhere(user), ...filters] };
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.cmsArticle.findMany({ where, orderBy: { publishedAt: 'desc' }, skip: (page - 1) * pageSize, take: pageSize, select: articleSelect }),
+      this.prisma.cmsArticle.count({ where }),
+    ]);
+    return { items, page, pageSize, total };
   }
 
   async getPublished(slug: string, user: AuthenticatedUser) {
@@ -31,11 +48,29 @@ export class CmsService {
 
   listDepartments() { return this.prisma.department.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }); }
 
+  listCategories() { return this.prisma.cmsCategory.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }); }
+  listTags() { return this.prisma.cmsTag.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }); }
+
+  async createCategory(dto: CreateTaxonomyDto) {
+    try { return await this.prisma.cmsCategory.create({ data: { name: dto.name.trim(), slug: dto.slug }, select: { id: true, name: true, slug: true } }); }
+    catch (error) { this.rethrowTaxonomyConflict(error); throw error; }
+  }
+
+  async createTag(dto: CreateTaxonomyDto) {
+    try { return await this.prisma.cmsTag.create({ data: { name: dto.name.trim(), slug: dto.slug }, select: { id: true, name: true, slug: true } }); }
+    catch (error) { this.rethrowTaxonomyConflict(error); throw error; }
+  }
+
   async create(dto: CreateArticleDto, actor: AuthenticatedUser) {
     const audience = this.validateAudience(dto.audienceType ?? 'COMPANY', dto.departmentId);
+    const { categoryIds = [], tagIds = [], ...articleData } = dto;
     try {
       return await this.prisma.$transaction(async (tx) => {
-        const article = await tx.cmsArticle.create({ data: { ...dto, ...audience, authorId: actor.id }, select: articleSelect });
+        const article = await tx.cmsArticle.create({ data: {
+          ...articleData, ...audience, authorId: actor.id,
+          categories: { create: categoryIds.map((categoryId) => ({ category: { connect: { id: categoryId } } })) },
+          tags: { create: tagIds.map((tagId) => ({ tag: { connect: { id: tagId } } })) },
+        }, select: articleSelect });
         await tx.auditLog.create({ data: { actorId: actor.id, action: 'cms.article.created', resource: 'cms_article', resourceId: article.id } });
         return article;
       });
@@ -53,7 +88,20 @@ export class CmsService {
       ? this.validateAudience(dto.audienceType ?? article.audienceType, dto.departmentId ?? article.departmentId ?? undefined)
       : {};
     try {
-      return await this.prisma.cmsArticle.update({ where: { id }, data: { ...dto, ...audience }, select: articleSelect });
+      const { categoryIds, tagIds, ...articleData } = dto;
+      return await this.prisma.$transaction(async (tx) => {
+        if (categoryIds !== undefined) {
+          await tx.cmsArticleCategory.deleteMany({ where: { articleId: id } });
+          if (categoryIds.length) await tx.cmsArticleCategory.createMany({ data: categoryIds.map((categoryId) => ({ articleId: id, categoryId })) });
+        }
+        if (tagIds !== undefined) {
+          await tx.cmsArticleTag.deleteMany({ where: { articleId: id } });
+          if (tagIds.length) await tx.cmsArticleTag.createMany({ data: tagIds.map((tagId) => ({ articleId: id, tagId })) });
+        }
+        const updated = await tx.cmsArticle.update({ where: { id }, data: { ...articleData, ...audience }, select: articleSelect });
+        await tx.auditLog.create({ data: { actorId: actor.id, action: 'cms.article.updated', resource: 'cms_article', resourceId: id } });
+        return updated;
+      });
     } catch (error) {
       this.rethrowSlugConflict(error);
       throw error;
@@ -126,5 +174,9 @@ export class CmsService {
 
   private rethrowSlugConflict(error: unknown): void {
     if ((error as { code?: string }).code === 'P2002') throw new ConflictException('Đường dẫn bài viết đã tồn tại');
+  }
+
+  private rethrowTaxonomyConflict(error: unknown): void {
+    if ((error as { code?: string }).code === 'P2002') throw new ConflictException('Tên hoặc đường dẫn taxonomy đã tồn tại');
   }
 }

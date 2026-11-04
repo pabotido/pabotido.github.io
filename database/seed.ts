@@ -4,7 +4,7 @@ import { validateLocalSeedConfig } from '../apps/api/src/common/local-seed-confi
 
 export async function seedLocal(prisma: PrismaClient, config: LocalSeedConfig): Promise<void> {
   const { adminEmail, adminPassword } = validateLocalSeedConfig(config);
-  const permissions = ['health.read', 'users.read', 'users.create', 'users.update', 'employees.read', 'employees.create', 'employees.update', 'departments.read', 'departments.manage', 'roles.manage', 'audit.read', 'cms.news.read', 'cms.news.create', 'cms.news.update', 'cms.news.approve', 'cms.news.publish'];
+  const permissions = ['health.read', 'users.read', 'users.create', 'users.update', 'employees.read', 'employees.create', 'employees.update', 'departments.read', 'departments.manage', 'roles.manage', 'audit.read', 'cms.news.read', 'cms.news.create', 'cms.news.update', 'cms.news.approve', 'cms.news.publish', 'cms.taxonomy.manage'];
   for (const key of permissions) await prisma.permission.upsert({ where: { key }, update: {}, create: { key, name: key } });
 
   const adminRole = await prisma.role.upsert({ where: { key: 'super_admin' }, update: {}, create: { key: 'super_admin', name: 'Super Admin' } });

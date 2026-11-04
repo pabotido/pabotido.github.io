@@ -20,6 +20,10 @@ erDiagram
   USERS ||--o{ AUDIT_LOGS : acts
   USERS ||--o{ CMS_ARTICLES : authors
   DEPARTMENTS ||--o{ CMS_ARTICLES : targets
+  CMS_ARTICLES ||--o{ CMS_ARTICLE_CATEGORIES : categorized
+  CMS_CATEGORIES ||--o{ CMS_ARTICLE_CATEGORIES : groups
+  CMS_ARTICLES ||--o{ CMS_ARTICLE_TAGS : tagged
+  CMS_TAGS ||--o{ CMS_ARTICLE_TAGS : labels
 ```
 
 ### Tables and constraints
@@ -33,7 +37,7 @@ erDiagram
 - `password_reset_tokens`: unique token hash, expiry and used timestamp; index by user and expiry.
 - `audit_logs`: actor, action, resource, optional JSON metadata/IP/user agent; indexes support actor chronology and resource lookup.
 
-`cms_articles` stores plain-text content, unique slugs, authors, editorial states (`DRAFT`, `PENDING_REVIEW`, `APPROVED`, `PUBLISHED`, `ARCHIVED`), company/department audiences and publication time. Creation and workflow transitions write audit events in the same transaction. Migration `0002_cms_articles` adds this schema and its indexes. Categories/tags, media, rich text and revision history are not implemented yet; other modules arrive with their corresponding phase migrations.
+`cms_articles` stores plain-text content, unique slugs, authors, editorial states (`DRAFT`, `PENDING_REVIEW`, `APPROVED`, `PUBLISHED`, `ARCHIVED`), company/department audiences and publication time. Creation, edits and workflow transitions write audit events in the same transaction. `cms_categories` and `cms_tags` have unique names/slugs and many-to-many join tables to articles. Migrations `0002_cms_articles` and `0003_cms_taxonomy` add these schemas and indexes. Media, rich text and revision history are not implemented yet; other modules arrive with their corresponding phase migrations.
 
 ## Local development commands
 
@@ -49,6 +53,6 @@ corepack pnpm db:seed
 
 ## Migration status
 
-`0001_init` and `0002_cms_articles` are committed. Empty-database migration deployment, auth integration and CMS workflow/audience integration passed in GitHub Actions run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893). Both migrations were also applied locally; PostgreSQL/Redis Compose and local seed/login were verified.
+`0001_init`, `0002_cms_articles` and `0003_cms_taxonomy` are committed. Migration `0003` is applied locally and its CMS workflow/audience/taxonomy integration passes against PostgreSQL/Redis. Hosted CI still needs to validate the latest migration from an empty database.
 
 For production releases, run `prisma migrate deploy` as a controlled release step using the target environment's secret-injected `DATABASE_URL`. Back up the database before migrations that may alter or remove data. Never use `prisma migrate dev` against production.

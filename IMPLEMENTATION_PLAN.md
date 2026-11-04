@@ -50,8 +50,11 @@
 - [x] Prevent authors from approving their own articles; enforce state transitions atomically and audit them.
 - [x] Restrict published feeds and article detail to company or the employee's department audience.
 - [x] Add Vietnamese reader and content workflow pages backed by the API.
+- [x] Add shared categories/tags, article assignment and reader filters.
+- [x] Add server-side search and pagination to the published news feed.
 - [x] Run CMS migration and PostgreSQL integration suite in hosted CI (run 41822335893).
-- [ ] Add categories/tags, rich text editor and server-side HTML sanitization.
+- [ ] Validate taxonomy migration and filtered feed in hosted CI.
+- [ ] Add rich text editor and server-side HTML sanitization.
 - [ ] Add media library, scheduling, revisions/history, search, pagination and CMS E2E workflow.
 
 ## Dependencies and gates
@@ -72,4 +75,4 @@ Production hosting, SSO/MFA policy, email provider, retention, file limits, RPO/
 
 ## Phase 2 status: Partial
 
-The first CMS vertical slice supports article draft, review, approval and publication with company/department audience enforcement. Rich text, media, scheduling, history, taxonomy, search and end-to-end browser validation remain.
+CMS currently supports article draft/review/approval/publication, company/department audiences, shared categories/tags, search, filtering and pagination. Rich text, media, scheduling, history, additional content types and end-to-end browser validation remain.

@@ -40,4 +40,19 @@
 .cms-actions { display: flex; flex: 0 0 auto; gap: 8px; }
 .cms-actions button, .cms-actions a { padding: 8px 10px; color: #386df0; background: #edf3ff; border: 0; border-radius: 7px; font-size: 10px; font-weight: 700; }
 .form-success { margin: 0 0 15px; padding: 10px 12px; color: #27835e; background: #e4f7ee; border-radius: 8px; font-size: 12px; }
+.news-filters { display: grid; grid-template-columns: minmax(180px, 2fr) minmax(140px, 1fr) minmax(120px, 1fr) auto; align-items: end; gap: 12px; margin-bottom: 18px; padding: 16px; }
+.news-filters label, .taxonomy-forms label { display: grid; gap: 6px; color: #526078; font-size: 10px; font-weight: 700; }
+.news-filters input, .news-filters select, .taxonomy-forms input { min-height: 40px; padding: 0 10px; color: #26344d; background: #fff; border: 1px solid #dfe5ef; border-radius: 7px; font: inherit; font-size: 11px; }
+.news-filters .primary-button { min-height: 40px; }
+.taxonomy-panel { margin-bottom: 20px; padding: 20px; }
+.taxonomy-forms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 16px; }
+.taxonomy-forms form { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 8px; }
+.taxonomy-forms button { min-height: 40px; padding: 0 12px; color: #386df0; background: #edf3ff; border: 0; border-radius: 7px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.taxonomy-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.taxonomy-chips span { padding: 4px 8px; color: #657289; background: #f0f2f6; border-radius: 12px; font-size: 9px; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; color: #758094; font-size: 11px; }
+.pagination button { min-height: 36px; padding: 0 12px; color: #386df0; background: #fff; border: 1px solid #dfe5ef; border-radius: 7px; font-size: 10px; font-weight: 700; }
+.pagination button:disabled { color: #aab2bf; cursor: not-allowed; background: #f3f4f6; }
 @media (max-width: 680px) { .news-grid { grid-template-columns: 1fr; } .cms-form-row { grid-template-columns: 1fr; gap: 0; } .cms-article-row { align-items: flex-start; flex-direction: column; } .cms-actions { flex-wrap: wrap; } .news-article, .cms-form, .cms-list { padding: 20px; } }
+@media (max-width: 900px) { .news-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .taxonomy-forms { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .news-filters { grid-template-columns: 1fr; } .taxonomy-forms form { grid-template-columns: 1fr; } .pagination { gap: 8px; font-size: 9px; } }
