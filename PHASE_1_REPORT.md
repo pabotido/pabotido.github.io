@@ -31,7 +31,7 @@ Kết quả sau cập nhật CORS/CSRF/request-ID interceptor và tài liệu:
 | `pnpm --filter @portal/api test:integration` | PASS locally; 3 suites / 5 tests with PostgreSQL and Redis, including whole-app bootstrap |
 | API runtime smoke | PASS; app startup, readiness, local admin login, CSRF-protected draft create and submit; temporary data removed |
 | Local Compose and seed | PASS; PostgreSQL/Redis started, local-only seed ran without changing `.env` |
-| Hosted CI migration/integration gate | PASS; lint, typecheck, unit tests, migration, integration tests, build and production dependency audit succeeded |
+| Hosted CI migration/integration gate | PASS in run [41824081649](https://github.com/pabotido/pabotido.github.io/actions/runs/41824081649); lint, typecheck, unit tests, clean-database migration, integration tests, build and production dependency audit succeeded |
 | Docker image build | NOT RUN; container image build is not required for Phase 1 local acceptance |
 
 ## 3. Chưa hoàn thành

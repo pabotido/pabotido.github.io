@@ -41,6 +41,7 @@ STATUS: Partial
 - Workspace typecheck: PASS.
 - API and web builds: PASS; Next static export includes `/news` and `/admin/cms/news`.
 - CMS PostgreSQL integration: PASS in hosted CI run [41822335893](https://github.com/pabotido/pabotido.github.io/actions/runs/41822335893), including audience isolation and state workflow.
+- Whole API module bootstrap integration: PASS locally and in hosted CI run [41824081649](https://github.com/pabotido/pabotido.github.io/actions/runs/41824081649).
 - Local API runtime: PASS; readiness, admin login, CSRF-protected draft creation and review submission; temporary test records removed.
 - Local PostgreSQL/Redis integration: PASS, 3 suites / 5 tests.
 - Production dependency audit: PASS locally and in hosted CI; no known vulnerabilities found.
